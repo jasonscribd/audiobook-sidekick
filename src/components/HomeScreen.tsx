@@ -1,8 +1,5 @@
 import React, { useState } from "react";
 import { 
-  ChevronDown, 
-  History, 
-  MessageCircleQuestion,
   RotateCcw,
   RotateCw,
   Play,
@@ -19,61 +16,11 @@ const HomeScreen: React.FC = () => {
   const [showSidekick, setShowSidekick] = useState(false);
 
   return (
-    <div 
-      className="min-h-screen w-screen overflow-hidden relative bg-warm-gradient font-inter"
-      style={{
-        paddingTop: 'max(env(safe-area-inset-top, 0px), 0px)',
-        paddingLeft: 'max(env(safe-area-inset-left, 0px), 0px)',
-        paddingRight: 'max(env(safe-area-inset-right, 0px), 0px)',
-        paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0px)'
-      }}
-    >
-      {/* Main Container - Mobile First Layout */}
-      <div className="max-w-[430px] mx-auto px-6 pt-3 pb-8">
+    <>
+      {/* Main Container - Phone Viewport Layout */}
+      <div className="h-full flex flex-col max-w-[430px] mx-auto px-6 pt-8 pb-8 font-inter">
         
-        {/* Native AppBar - Clean header below status bar */}
-        <div className="h-12 flex items-center justify-between mb-6 -mx-6 px-6 relative">
-          {/* Left: Collapse button */}
-          <button
-            aria-label="Collapse"
-            className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity motion-reduce:transition-none"
-          >
-            <ChevronDown 
-              size={21} 
-              strokeWidth={1.75}
-            />
-          </button>
-          
-          {/* Center: App label with proper visual centering */}
-          <div className="absolute left-1/2 transform -translate-x-1/2">
-            <span className="text-text-muted text-[13px] font-normal tracking-wide">
-              Audiobook sidekick
-            </span>
-          </div>
-          
-          {/* Right: History and Settings buttons */}
-          <div className="flex items-center space-x-3">
-            <button
-              aria-label="Open history"
-              className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity motion-reduce:transition-none"
-            >
-              <History 
-                size={21} 
-                strokeWidth={1.75}
-              />
-            </button>
-            
-            <button
-              aria-label="Open settings"
-              className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity motion-reduce:transition-none"
-            >
-              <MessageCircleQuestion 
-                size={21} 
-                strokeWidth={1.75}
-              />
-            </button>
-          </div>
-        </div>
+
 
         {/* Album Artwork */}
         <div className="flex justify-center mb-4">
@@ -248,16 +195,11 @@ const HomeScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* Home Indicator */}
-      <div className="fixed bottom-2 left-1/2 transform -translate-x-1/2">
-        <div className="w-32 h-1 bg-text rounded-full opacity-30"></div>
-      </div>
-
       {/* Sidekick Popup */}
       {showSidekick && (
         <SidekickPopup onClose={() => setShowSidekick(false)} />
       )}
-    </div>
+    </>
   );
 };
 

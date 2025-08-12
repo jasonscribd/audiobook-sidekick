@@ -1,3 +1,68 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities; 
+@tailwind utilities;
+
+/* Phone Simulation Styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent body scroll on desktop */
+  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height for mobile */
+  background: #201C14; /* Fallback background */
+}
+
+#root {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  html, body, #root {
+    overflow: visible;
+    overscroll-behavior: contain; /* Prevent rubber-banding */
+  }
+  
+  /* Prevent zoom on input focus */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
+
+/* Desktop phone simulation */
+@media (min-width: 769px) {
+  .phone-stage-desktop {
+    user-select: none; /* Prevent text selection on backdrop */
+  }
+  
+  .phone-container {
+    isolation: isolate; /* Create stacking context */
+  }
+  
+  .phone-viewport {
+    position: relative;
+    isolation: isolate;
+  }
+}
+
+/* Focus trap for phone viewport */
+.phone-viewport {
+  outline: none;
+}
+
+.phone-viewport:focus-within {
+  /* Ensure focus stays within phone */
+}
+
+/* Smooth scaling transitions */
+.phone-container {
+  transition: transform 0.2s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phone-container {
+    transition: none;
+  }
+} 
