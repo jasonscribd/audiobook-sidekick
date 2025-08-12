@@ -1,4 +1,18 @@
 import React, { useState } from "react";
+import { 
+  ChevronDown, 
+  History, 
+  MessageCircleQuestion,
+  RotateCcw,
+  RotateCw,
+  Play,
+  SkipBack,
+  SkipForward,
+  AlignJustify,
+  Bookmark,
+  Timer,
+  Gauge
+} from "lucide-react";
 import SidekickPopup from "./SidekickPopup";
 
 const HomeScreen: React.FC = () => {
@@ -34,19 +48,43 @@ const HomeScreen: React.FC = () => {
 
         {/* Top Navigation */}
         <div className="flex justify-between items-center mb-5">
-          <svg className="w-5 h-5 text-text opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-          <svg className="w-5 h-5 text-text opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
+          <ChevronDown 
+            size={21} 
+            strokeWidth={1.75}
+            className="text-text opacity-80"
+          />
+          
+          <span className="text-text-muted text-[13px] font-normal tracking-wide">
+            Audiobook sidekick
+          </span>
+          
+          <div className="flex items-center space-x-3">
+            <button
+              aria-label="Open history"
+              className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+            >
+              <History 
+                size={21} 
+                strokeWidth={1.75}
+              />
+            </button>
+            
+            <button
+              aria-label="Open settings"
+              className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+            >
+              <MessageCircleQuestion 
+                size={21} 
+                strokeWidth={1.75}
+              />
+            </button>
+          </div>
         </div>
 
         {/* Album Artwork */}
         <div className="flex justify-center mb-4">
           <img
-            src={`${import.meta.env.BASE_URL}covers/Femalequixote.jpg`}
+            src={`${(import.meta as any).env.BASE_URL}covers/Femalequixote.jpg`}
             alt="The Female Quixote Vol. I by Charlotte Lennox"
             className="w-[84vw] max-w-[340px] aspect-square object-cover rounded-[21px] shadow-img-soft"
             onError={(e) => {
@@ -99,73 +137,120 @@ const HomeScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Transport Controls (Simplified Line Icons) */}
+        {/* Transport Controls */}
         <div className="flex items-center justify-center space-x-8 opacity-80 mb-4">
-          {/* Previous */}
-          <button className="text-text pointer-events-none" tabIndex={-1}>
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth={2.25} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="m6 9 6 6 6-6" />
-            </svg>
+          {/* Skip Back */}
+          <button 
+            className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
+            tabIndex={-1}
+            aria-label="Skip back"
+          >
+            <SkipBack 
+              size={29} 
+              strokeWidth={1.75}
+            />
           </button>
 
           {/* Rewind 30 */}
-          <button className="text-text relative pointer-events-none" tabIndex={-1}>
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth={2.25} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold">30</span>
+          <button 
+            className="w-11 h-11 flex flex-col items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
+            tabIndex={-1}
+            aria-label="Rewind 30 seconds"
+          >
+            <RotateCcw 
+              size={29} 
+              strokeWidth={1.75}
+            />
+            <span className="text-xs font-bold mt-0.5">30</span>
           </button>
 
           {/* Play Button */}
-          <button className="text-text pointer-events-none" tabIndex={-1}>
-            <svg className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth={2.25} viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10"/>
-              <polygon points="10,8 16,12 10,16"/>
-            </svg>
+          <button 
+            className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
+            tabIndex={-1}
+            aria-label="Play"
+          >
+            <Play 
+              size={32} 
+              strokeWidth={1.75}
+            />
           </button>
 
           {/* Forward 30 */}
-          <button className="text-text relative pointer-events-none" tabIndex={-1}>
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth={2.25} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold">30</span>
+          <button 
+            className="w-11 h-11 flex flex-col items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
+            tabIndex={-1}
+            aria-label="Forward 30 seconds"
+          >
+            <RotateCw 
+              size={29} 
+              strokeWidth={1.75}
+            />
+            <span className="text-xs font-bold mt-0.5">30</span>
           </button>
 
-          {/* Next */}
-          <button className="text-text pointer-events-none" tabIndex={-1}>
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth={2.25} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="m18 15-6-6-6 6" />
-            </svg>
+          {/* Skip Forward */}
+          <button 
+            className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
+            tabIndex={-1}
+            aria-label="Skip forward"
+          >
+            <SkipForward 
+              size={29} 
+              strokeWidth={1.75}
+            />
           </button>
         </div>
 
-        {/* Bottom Navigation (Simplified) */}
-        <div className="flex justify-between items-center text-text opacity-50">
-          <div className="flex flex-col items-center space-y-1 pointer-events-none">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-            <span className="text-xs">Menu</span>
-          </div>
-          <div className="flex flex-col items-center space-y-1 pointer-events-none">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-            </svg>
-            <span className="text-xs">Bookmark</span>
-          </div>
-          <div className="flex flex-col items-center space-y-1 pointer-events-none">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="text-xs">Timer</span>
-          </div>
-          <div className="flex flex-col items-center space-y-1 pointer-events-none">
-            <span className="text-sm font-bold">1.00x</span>
-            <span className="text-xs">Speed</span>
-          </div>
+        {/* Bottom Navigation */}
+        <div className="flex justify-between items-center text-text opacity-70">
+          <button 
+            className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 opacity-70 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none"
+            tabIndex={-1}
+            aria-label="Menu"
+          >
+            <AlignJustify 
+              size={23} 
+              strokeWidth={1.75}
+            />
+            <span className="text-xs text-text-muted">Menu</span>
+          </button>
+          
+          <button 
+            className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 opacity-70 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none"
+            tabIndex={-1}
+            aria-label="Bookmark"
+          >
+            <Bookmark 
+              size={23} 
+              strokeWidth={1.75}
+            />
+            <span className="text-xs text-text-muted">Bookmark</span>
+          </button>
+          
+          <button 
+            className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 opacity-70 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none"
+            tabIndex={-1}
+            aria-label="Timer"
+          >
+            <Timer 
+              size={23} 
+              strokeWidth={1.75}
+            />
+            <span className="text-xs text-text-muted">Timer</span>
+          </button>
+          
+          <button 
+            className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 opacity-70 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none"
+            tabIndex={-1}
+            aria-label="Speed"
+          >
+            <Gauge 
+              size={23} 
+              strokeWidth={1.75}
+            />
+            <span className="text-xs text-text-muted">Speed</span>
+          </button>
         </div>
       </div>
 
