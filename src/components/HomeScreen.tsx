@@ -18,32 +18,25 @@ const HomeScreen: React.FC = () => {
   return (
     <>
       {/* Main Container - Phone Viewport Layout */}
-      <div className="h-full flex flex-col max-w-[430px] mx-auto px-6 pt-8 pb-8 font-inter">
+      <div className="h-full flex flex-col max-w-[430px] mx-auto px-6 pt-10 pb-8 font-inter">
         
 
 
         {/* Album Artwork */}
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mt-5 mb-4">
           <img
             src={`${(import.meta as any).env.BASE_URL}covers/Femalequixote.jpg`}
             alt="The Female Quixote Vol. I by Charlotte Lennox"
             className="w-[84vw] max-w-[340px] aspect-square object-cover rounded-[21px] shadow-img-soft"
             onError={(e) => {
-              // Debug: Log the error
-              console.error('Image failed to load:', e);
-              console.error('Attempted src:', (e.target as HTMLImageElement).src);
-              // Fallback to a placeholder if image fails to load
               const target = e.target as HTMLImageElement;
               target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='340' height='340' viewBox='0 0 340 340'%3E%3Crect width='340' height='340' fill='%233B3934'/%3E%3Ctext x='50%25' y='45%25' font-family='Inter' font-size='16' fill='%23EDEDED' text-anchor='middle'%3EThe Female Quixote%3C/text%3E%3Ctext x='50%25' y='55%25' font-family='Inter' font-size='14' fill='%23B9B9B9' text-anchor='middle'%3EVol. I%3C/text%3E%3Ctext x='50%25' y='65%25' font-family='Inter' font-size='12' fill='%23B9B9B9' text-anchor='middle'%3ECharlotte Lennox%3C/text%3E%3C/svg%3E";
-            }}
-            onLoad={() => {
-              console.log('Image loaded successfully!');
             }}
           />
         </div>
 
         {/* Title */}
-        <h1 className="text-center text-text font-inter font-semibold text-[22px] leading-tight mb-4">
+        <h1 className="text-center text-text font-inter font-semibold text-[23px] leading-tight mb-4">
           The Female Quixote
         </h1>
 
@@ -53,25 +46,23 @@ const HomeScreen: React.FC = () => {
           aria-label="Ask me anything or make a note"
           className="w-full max-w-[560px] h-14 bg-accent text-black font-semibold text-base rounded-[17px] shadow-accent-glow flex items-center justify-center space-x-2 transition-all duration-200 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg active:scale-[0.99] motion-reduce:active:scale-100 mb-4"
         >
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-          </svg>
+          <span className="text-lg">✨</span>
           <span>Ask me anything or make a note</span>
         </button>
 
         {/* Progress Bar */}
-        <div className="w-full mb-3">
+        <div className="w-full mb-5">
           <div className="relative w-full h-1 bg-track bg-opacity-60 rounded-full mb-2">
             <div className="h-full bg-accent rounded-full" style={{ width: '25%' }}></div>
             {/* Progress Knob */}
             <div 
-              className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-accent rounded-full shadow-sm"
+              className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-accent rounded-full"
               style={{ left: 'calc(25% - 8px)' }}
             ></div>
           </div>
           
           {/* Timestamps */}
-          <div className="flex justify-between items-center text-text-muted text-[13px] font-normal">
+          <div className="flex justify-between items-center text-text-muted text-[13px] font-normal mt-2">
             <span>03:57</span>
             <span>5 min 48 sec left</span>
             <span>-09:45</span>
@@ -79,7 +70,7 @@ const HomeScreen: React.FC = () => {
         </div>
 
         {/* Transport Controls */}
-        <div className="flex items-center justify-center space-x-8 opacity-80 mb-4">
+        <div className="flex items-center justify-center space-x-8 opacity-80 mb-3">
           {/* Skip Back */}
           <button 
             className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
@@ -144,7 +135,7 @@ const HomeScreen: React.FC = () => {
         </div>
 
         {/* Bottom Navigation */}
-        <div className="flex justify-between items-center text-text opacity-70">
+        <div className="flex justify-between items-center text-text opacity-70 mt-3">
           <button 
             className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 opacity-70 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none"
             tabIndex={-1}
