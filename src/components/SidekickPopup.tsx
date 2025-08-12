@@ -18,7 +18,6 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
   const [showHistory, setShowHistory] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [liveTranscript, setLiveTranscript] = useState('');
   const [assistantText, setAssistantText] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isNoteCommand, setIsNoteCommand] = useState(false);
@@ -52,7 +51,6 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
   const resetToIdle = () => {
     setConversationState('idle');
     setTranscript('');
-    setLiveTranscript('');
     setAssistantText('');
     setErrorMessage('');
     setIsNoteCommand(false);
@@ -73,32 +71,7 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
     resetToIdle();
   };
 
-  // Simulate real-time transcription while listening
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (conversationState === 'listening') {
-      const phrases = [
-        "What is...",
-        "What is the meaning...",
-        "What is the meaning of...",
-        "What is the meaning of quixotic?",
-      ];
-      let currentIndex = 0;
-      
-      interval = setInterval(() => {
-        if (currentIndex < phrases.length) {
-          setLiveTranscript(phrases[currentIndex]);
-          currentIndex++;
-        }
-      }, 800);
-    } else {
-      setLiveTranscript('');
-    }
-    
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [conversationState]);
+
 
   const toggleMic = async () => {
     if (conversationState === 'idle') {
@@ -395,7 +368,7 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
             {conversationState !== 'idle' && (
               <>
                 <h2 className="font-merriweather font-bold text-[32px] text-text leading-tight max-w-[30ch] mb-2">
-                  {conversationState === 'listening' && (liveTranscript || 'Listening...')}
+                  {conversationState === 'listening' && 'Listening...'}
                   {conversationState === 'transcribing' && (
                     <span className="animate-pulse motion-reduce:animate-none">Processing...</span>
                   )}
