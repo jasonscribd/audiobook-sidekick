@@ -130,15 +130,35 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
   }, [onClose, showHistory, showSettings]);
 
   return (
-    <div className="fixed inset-0 bg-warm-gradient font-inter z-50">
-      {/* Main Container */}
-      <div className="max-w-[430px] mx-auto px-6 pt-10 pb-8 h-full flex flex-col">
-        
-        {/* Top Bar */}
-        <div className="flex justify-between items-center mb-6">
-          <span className="text-text-muted text-[13px] font-normal tracking-wide">
-            Audiobook sidekick
-          </span>
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 font-inter z-50 flex items-center justify-center"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !showHistory && !showSettings) {
+          onClose();
+        }
+      }}
+    >
+      {/* Overlay Container */}
+      <div className="w-full max-w-[430px] mx-4 bg-warm-gradient rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden"
+           onClick={(e) => e.stopPropagation()}>
+        <div className="px-6 pt-10 pb-8 h-full flex flex-col">
+          
+          {/* Top Bar */}
+          <div className="flex justify-between items-center mb-6">
+            {/* Close X Button */}
+            <button
+              onClick={onClose}
+              aria-label="Close"
+              className="w-8 h-8 flex items-center justify-center text-text opacity-70 hover:opacity-100 transition-opacity"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+
+            <span className="text-text-muted text-[13px] font-normal tracking-wide">
+              Audiobook sidekick
+            </span>
           
           {/* Right Icons */}
           <div className="flex items-center space-x-4">
@@ -214,19 +234,20 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
         </div>
       </div>
 
-      {/* History Overlay */}
-      {showHistory && (
-        <div className="absolute inset-0 bg-warm-gradient">
-          <HistoryDrawer onClose={() => setShowHistory(false)} />
-        </div>
-      )}
+        {/* History Overlay */}
+        {showHistory && (
+          <div className="absolute inset-0 bg-warm-gradient rounded-2xl">
+            <HistoryDrawer onClose={() => setShowHistory(false)} />
+          </div>
+        )}
 
-      {/* Settings Overlay */}
-      {showSettings && (
-        <div className="absolute inset-0 bg-warm-gradient">
-          <SettingsPane onClose={() => setShowSettings(false)} />
-        </div>
-      )}
+        {/* Settings Overlay */}
+        {showSettings && (
+          <div className="absolute inset-0 bg-warm-gradient rounded-2xl">
+            <SettingsPane onClose={() => setShowSettings(false)} />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
