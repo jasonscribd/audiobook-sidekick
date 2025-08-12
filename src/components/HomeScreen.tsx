@@ -33,22 +33,22 @@ const HomeScreen: React.FC = () => {
         </div>
 
         {/* Top Navigation */}
-        <div className="flex justify-between items-center mb-6">
-          <svg className="w-6 h-6 text-text opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex justify-between items-center mb-5">
+          <svg className="w-5 h-5 text-text opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
-          <svg className="w-6 h-6 text-text opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-text opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
         </div>
 
         {/* Album Artwork */}
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-4">
           <img
             src="/covers/the-female-quixote.jpg"
             alt="The Female Quixote Vol. I by Charlotte Lennox"
-            className="w-[84vw] max-w-[340px] aspect-square object-cover rounded-3xl shadow-img-soft"
+            className="w-[84vw] max-w-[340px] aspect-square object-cover rounded-[21px] shadow-img-soft"
             onError={(e) => {
               // Fallback to a placeholder if image fails to load
               const target = e.target as HTMLImageElement;
@@ -58,7 +58,7 @@ const HomeScreen: React.FC = () => {
         </div>
 
         {/* Title */}
-        <h1 className="text-center text-text font-inter font-semibold text-[22px] sm:text-2xl leading-tight mb-6">
+        <h1 className="text-center text-text font-inter font-semibold text-[22px] leading-tight mb-4">
           The Female Quixote
         </h1>
 
@@ -66,83 +66,93 @@ const HomeScreen: React.FC = () => {
         <button
           onClick={() => setShowSidekick(true)}
           aria-label="Ask me anything or make a note"
-          className="w-full max-w-[560px] h-14 bg-accent text-black font-semibold text-base rounded-2xl shadow-accent-glow flex items-center justify-center space-x-2 transition-all duration-200 hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg active:scale-[0.99] motion-reduce:active:scale-100 mb-6"
+          className="w-full max-w-[560px] h-14 bg-accent text-black font-semibold text-base rounded-[17px] shadow-accent-glow flex items-center justify-center space-x-2 transition-all duration-200 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg active:scale-[0.99] motion-reduce:active:scale-100 mb-4"
         >
-          <span>✨</span>
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+          </svg>
           <span>Ask me anything or make a note</span>
         </button>
 
         {/* Progress Bar */}
-        <div className="w-full mb-4">
-          <div className="w-full h-0.5 bg-track bg-opacity-60 rounded-full mb-3">
+        <div className="w-full mb-3">
+          <div className="relative w-full h-1 bg-track bg-opacity-60 rounded-full mb-2">
             <div className="h-full bg-accent rounded-full" style={{ width: '25%' }}></div>
+            {/* Progress Knob */}
+            <div 
+              className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-accent rounded-full shadow-sm"
+              style={{ left: 'calc(25% - 8px)' }}
+            ></div>
           </div>
           
           {/* Timestamps */}
-          <div className="flex justify-between items-center text-text-muted text-[13px]">
+          <div className="flex justify-between items-center text-text-muted text-[13px] font-normal">
             <span>03:57</span>
             <span>5 min 48 sec left</span>
             <span>-09:45</span>
           </div>
         </div>
 
-        {/* Transport Controls (Faded/Cosmetic) */}
-        <div className="flex items-center justify-center space-x-8 opacity-50 mb-6">
+        {/* Transport Controls (Simplified Line Icons) */}
+        <div className="flex items-center justify-center space-x-8 opacity-80 mb-4">
           {/* Previous */}
           <button className="text-text pointer-events-none" tabIndex={-1}>
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth={2.25} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="m6 9 6 6 6-6" />
             </svg>
           </button>
 
           {/* Rewind 30 */}
           <button className="text-text relative pointer-events-none" tabIndex={-1}>
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth={2.25} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span className="absolute inset-0 flex items-center justify-center text-xs font-bold">30</span>
           </button>
 
           {/* Play Button */}
-          <button className="bg-text text-bg rounded-full p-3 pointer-events-none" tabIndex={-1}>
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+          <button className="text-text pointer-events-none" tabIndex={-1}>
+            <svg className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth={2.25} viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/>
+              <polygon points="10,8 16,12 10,16"/>
             </svg>
           </button>
 
           {/* Forward 30 */}
           <button className="text-text relative pointer-events-none" tabIndex={-1}>
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth={2.25} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span className="absolute inset-0 flex items-center justify-center text-xs font-bold">30</span>
           </button>
 
           {/* Next */}
           <button className="text-text pointer-events-none" tabIndex={-1}>
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414zm6 0a1 1 0 011.414 0l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L14.586 10l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth={2.25} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="m18 15-6-6-6 6" />
             </svg>
           </button>
         </div>
 
-        {/* Bottom Navigation (Faded/Cosmetic) */}
+        {/* Bottom Navigation (Simplified) */}
         <div className="flex justify-between items-center text-text opacity-50">
           <div className="flex flex-col items-center space-y-1 pointer-events-none">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
             <span className="text-xs">Menu</span>
           </div>
           <div className="flex flex-col items-center space-y-1 pointer-events-none">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
             </svg>
             <span className="text-xs">Bookmark</span>
           </div>
           <div className="flex flex-col items-center space-y-1 pointer-events-none">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span className="text-xs">Timer</span>
           </div>
