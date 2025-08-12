@@ -19,49 +19,43 @@ const HomeScreen: React.FC = () => {
   const [showSidekick, setShowSidekick] = useState(false);
 
   return (
-    <div className="min-h-screen w-screen overflow-hidden relative bg-warm-gradient font-inter">
+    <div 
+      className="min-h-screen w-screen overflow-hidden relative bg-warm-gradient font-inter"
+      style={{
+        paddingTop: 'max(env(safe-area-inset-top, 0px), 0px)',
+        paddingLeft: 'max(env(safe-area-inset-left, 0px), 0px)',
+        paddingRight: 'max(env(safe-area-inset-right, 0px), 0px)',
+        paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0px)'
+      }}
+    >
       {/* Main Container - Mobile First Layout */}
-      <div className="max-w-[430px] mx-auto px-6 pt-10 pb-8">
+      <div className="max-w-[430px] mx-auto px-6 pt-3 pb-8">
         
-        {/* Status Bar */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="text-lg font-semibold text-text">9:41</div>
-          <div className="flex items-center space-x-1 text-text">
-            {/* Signal bars */}
-            <div className="flex space-x-1">
-              <div className="w-1 h-3 bg-current rounded-full"></div>
-              <div className="w-1 h-4 bg-current rounded-full"></div>
-              <div className="w-1 h-5 bg-current rounded-full"></div>
-              <div className="w-1 h-6 bg-current rounded-full"></div>
-            </div>
-            {/* WiFi */}
-            <svg className="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M17.778 8.222c-4.296-4.296-11.26-4.296-15.556 0A1 1 0 01.808 6.808c5.076-5.077 13.308-5.077 18.384 0a1 1 0 01-1.414 1.414zM14.95 11.05a7 7 0 00-9.9 0 1 1 0 01-1.414-1.414 9 9 0 0112.728 0 1 1 0 01-1.414 1.414zM12.12 13.88a3 3 0 00-4.24 0 1 1 0 01-1.415-1.414 5 5 0 017.07 0 1 1 0 01-1.415 1.414zM9 16a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
-            </svg>
-            {/* Battery */}
-            <div className="w-6 h-3 border border-current rounded-sm ml-1">
-              <div className="w-4 h-1.5 bg-current rounded-sm m-0.5"></div>
-            </div>
-            <div className="w-0.5 h-1 bg-current rounded-full ml-0.5"></div>
+        {/* Native AppBar - Clean header below status bar */}
+        <div className="h-12 flex items-center justify-between mb-6 -mx-6 px-6 relative">
+          {/* Left: Collapse button */}
+          <button
+            aria-label="Collapse"
+            className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity motion-reduce:transition-none"
+          >
+            <ChevronDown 
+              size={21} 
+              strokeWidth={1.75}
+            />
+          </button>
+          
+          {/* Center: App label with proper visual centering */}
+          <div className="absolute left-1/2 transform -translate-x-1/2">
+            <span className="text-text-muted text-[13px] font-normal tracking-wide">
+              Audiobook sidekick
+            </span>
           </div>
-        </div>
-
-        {/* Top Navigation */}
-        <div className="flex justify-between items-center mb-5">
-          <ChevronDown 
-            size={21} 
-            strokeWidth={1.75}
-            className="text-text opacity-80"
-          />
           
-          <span className="text-text-muted text-[13px] font-normal tracking-wide">
-            Audiobook sidekick
-          </span>
-          
+          {/* Right: History and Settings buttons */}
           <div className="flex items-center space-x-3">
             <button
               aria-label="Open history"
-              className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+              className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity motion-reduce:transition-none"
             >
               <History 
                 size={21} 
@@ -71,7 +65,7 @@ const HomeScreen: React.FC = () => {
             
             <button
               aria-label="Open settings"
-              className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+              className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity motion-reduce:transition-none"
             >
               <MessageCircleQuestion 
                 size={21} 
