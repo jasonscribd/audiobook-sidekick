@@ -1,4 +1,5 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
+import { History, Info } from "lucide-react";
 import { SidekickContext } from "../context/SidekickContext";
 import SettingsPane from "./SettingsPane";
 import HistoryDrawer from "./HistoryDrawer";
@@ -268,47 +269,40 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
         <div className="px-6 pt-10 pb-8 h-full flex flex-col">
           
           {/* Top Bar */}
-          <div className="flex justify-between items-center mb-6">
-            {/* Close X Button - show in idle or complete states */}
-            {(conversationState === 'idle' || conversationState === 'complete') && (
-              <button
-                onClick={conversationState === 'complete' ? resetToIdle : onClose}
-                aria-label={conversationState === 'complete' ? 'Close response' : 'Close'}
-                className="w-8 h-8 flex items-center justify-center text-text opacity-70 hover:opacity-100 transition-opacity"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-              </button>
-            )}
+          <div className="h-12 flex items-center justify-between mb-6 px-6 -mx-6">
+            {/* Left spacer for centering */}
+            <div className="w-[100px]"> {/* Width matches right icon group (44px + 12px + 44px) */}
+            </div>
 
-            <span className="text-text-muted text-[13px] font-normal tracking-wide flex-1 text-center">
-              Audiobook sidekick
+            {/* Centered header text */}
+            <span className="text-text-muted text-[13px] font-medium tracking-[0.02em]">
+              Audiobook Sidekick
             </span>
           
             {/* Right Icons */}
-            <div className="flex items-center space-x-4">
-              {/* Clock - History */}
+            <div className="flex items-center space-x-3">
+              {/* History */}
               <button
                 onClick={() => setShowHistory(true)}
                 aria-label="Open history"
-                className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 transition-opacity"
+                className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10"/>
-                  <polyline points="12,6 12,12 16,14"/>
-                </svg>
+                <History 
+                  size={21} 
+                  strokeWidth={1.75}
+                />
               </button>
               
-              {/* Info/Speech Bubble - Settings */}
+              {/* Info */}
               <button
                 onClick={() => setShowSettings(true)}
                 aria-label="Open settings"
-                className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 transition-opacity"
+                className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/>
-                </svg>
+                <Info 
+                  size={21} 
+                  strokeWidth={1.75}
+                />
               </button>
             </div>
           </div>
