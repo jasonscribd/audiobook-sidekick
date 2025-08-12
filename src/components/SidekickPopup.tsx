@@ -269,18 +269,20 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
         <div className="px-6 pt-10 pb-8 h-full flex flex-col">
           
           {/* Top Bar */}
-          <div className="h-12 flex items-center justify-between mb-6 px-6 -mx-6">
+          <div className="h-12 flex items-center mb-6 px-6 -mx-6">
             {/* Left spacer for centering */}
-            <div className="w-[100px]"> {/* Width matches right icon group (44px + 12px + 44px) */}
+            <div className="w-[100px] flex-shrink-0"> {/* Width matches right icon group (44px + 12px + 44px) */}
             </div>
 
             {/* Centered header text */}
-            <span className="text-text-muted text-[13px] font-medium tracking-[0.02em]">
-              Audiobook Sidekick
-            </span>
+            <div className="flex-1 flex justify-center">
+              <span className="text-text-muted text-[13px] font-medium tracking-[0.02em] whitespace-nowrap">
+                Audiobook Sidekick
+              </span>
+            </div>
           
             {/* Right Icons */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 flex-shrink-0">
               {/* History */}
               <button
                 onClick={() => setShowHistory(true)}
