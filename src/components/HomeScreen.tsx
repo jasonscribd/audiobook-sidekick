@@ -46,13 +46,19 @@ const HomeScreen: React.FC = () => {
         {/* Album Artwork */}
         <div className="flex justify-center mb-4">
           <img
-            src="/covers/Femalequixote.jpg"
+            src={`${import.meta.env.BASE_URL}covers/Femalequixote.jpg`}
             alt="The Female Quixote Vol. I by Charlotte Lennox"
             className="w-[84vw] max-w-[340px] aspect-square object-cover rounded-[21px] shadow-img-soft"
             onError={(e) => {
+              // Debug: Log the error
+              console.error('Image failed to load:', e);
+              console.error('Attempted src:', (e.target as HTMLImageElement).src);
               // Fallback to a placeholder if image fails to load
               const target = e.target as HTMLImageElement;
               target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='340' height='340' viewBox='0 0 340 340'%3E%3Crect width='340' height='340' fill='%233B3934'/%3E%3Ctext x='50%25' y='45%25' font-family='Inter' font-size='16' fill='%23EDEDED' text-anchor='middle'%3EThe Female Quixote%3C/text%3E%3Ctext x='50%25' y='55%25' font-family='Inter' font-size='14' fill='%23B9B9B9' text-anchor='middle'%3EVol. I%3C/text%3E%3Ctext x='50%25' y='65%25' font-family='Inter' font-size='12' fill='%23B9B9B9' text-anchor='middle'%3ECharlotte Lennox%3C/text%3E%3C/svg%3E";
+            }}
+            onLoad={() => {
+              console.log('Image loaded successfully!');
             }}
           />
         </div>
