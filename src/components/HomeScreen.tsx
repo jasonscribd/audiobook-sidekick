@@ -46,7 +46,7 @@ const HomeScreen: React.FC = () => {
         {/* Album Artwork */}
         <div className="flex justify-center mb-4">
           <img
-            src="/covers/the-female-quixote.jpg"
+            src="/covers/Femalequixote.jpg"
             alt="The Female Quixote Vol. I by Charlotte Lennox"
             className="w-[84vw] max-w-[340px] aspect-square object-cover rounded-[21px] shadow-img-soft"
             onError={(e) => {
