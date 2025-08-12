@@ -58,11 +58,38 @@ html, body {
 
 /* Smooth scaling transitions */
 .phone-container {
-  transition: transform 0.2s ease-out;
+  transition: transform 0.3s ease-out, filter 0.3s ease-out;
+  will-change: transform, filter;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .phone-container {
     transition: none;
+    will-change: auto;
+  }
+}
+
+/* Enhanced desktop phone simulation */
+@media (min-width: 769px) {
+  .phone-stage-desktop {
+    user-select: none;
+    cursor: default;
+  }
+  
+  .phone-container {
+    isolation: isolate;
+    /* Subtle hover effect for engagement */
+  }
+  
+  .phone-container:hover {
+    filter: drop-shadow(0 25px 70px rgba(0,0,0,0.45)) !important;
+  }
+  
+  .phone-viewport {
+    position: relative;
+    isolation: isolate;
+    /* Maintain crisp rendering at all scales */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
   }
 } 

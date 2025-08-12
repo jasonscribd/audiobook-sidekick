@@ -40,18 +40,26 @@ const PhoneStage: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       setIsMobile(mobile);
 
       if (!mobile) {
-        // Desktop: calculate responsive scale
+        // Desktop: calculate responsive scale with more generous sizing
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
         const phoneWidth = 390;
         const phoneHeight = 844;
         
-        // Calculate scale with padding
-        const scaleX = (viewportWidth - 48) / phoneWidth;
-        const scaleY = (viewportHeight - 48) / phoneHeight;
-        const newScale = Math.min(scaleX, scaleY, 1);
+        // More generous padding and allow upscaling for larger screens
+        const minPadding = 32; // Reduced from 48px
+        const scaleX = (viewportWidth - minPadding) / phoneWidth;
+        const scaleY = (viewportHeight - minPadding) / phoneHeight;
         
-        setScale(newScale);
+        // Allow upscaling up to 1.5x for large screens, but cap reasonable sizes
+        const maxScale = Math.min(1.5, viewportWidth > 1200 ? 1.4 : 1.2);
+        const newScale = Math.min(scaleX, scaleY, maxScale);
+        
+        // Ensure minimum scale for very small desktop windows
+        const minScale = 0.6;
+        const finalScale = Math.max(newScale, minScale);
+        
+        setScale(finalScale);
       }
     };
 
@@ -86,13 +94,13 @@ const PhoneStage: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // Desktop: centered and scaled phone
   return (
-    <div className="phone-stage-desktop h-full bg-warm-gradient flex items-center justify-center p-6">
+    <div className="phone-stage-desktop h-full bg-warm-gradient flex items-center justify-center p-4">
       <div
-        className="phone-container relative"
+        className="phone-container relative transition-transform duration-300 ease-out"
         style={{
           transform: `scale(${scale})`,
           transformOrigin: 'center',
-          filter: 'drop-shadow(0 20px 60px rgba(0,0,0,0.35))',
+          filter: `drop-shadow(0 ${Math.min(30, 20 * scale)}px ${Math.min(80, 60 * scale)}px rgba(0,0,0,${Math.min(0.4, 0.35 + scale * 0.1)}))`,
         }}
       >
         {children}
