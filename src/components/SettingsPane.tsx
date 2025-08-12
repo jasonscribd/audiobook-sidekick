@@ -71,6 +71,15 @@ export default function SettingsPane({ onClose }: Props) {
           <span>Silent Mode (text-only)</span>
         </label>
 
+        <label className="flex items-center gap-2 mb-3">
+          <input
+            type="checkbox"
+            checked={localSettings.fastMode}
+            onChange={(e) => setLocalSettings({ ...localSettings, fastMode: e.target.checked })}
+          />
+          <span>Fast Mode (gpt-3.5-turbo-mini)</span>
+        </label>
+
         <label className="flex items-center gap-2 mb-4">
           <input
             type="checkbox"

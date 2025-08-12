@@ -14,6 +14,7 @@ export type Settings = {
   voiceId: string;
   debug: boolean;
   silent: boolean; // if true, skip TTS playback
+  fastMode: boolean; // if true, use gpt-3.5-turbo-mini for simple tasks
 };
 
 interface SidekickContextValue {
@@ -32,6 +33,7 @@ export function SidekickProvider({ children }: { children: ReactNode }) {
     voiceId: "alloy",
     debug: false,
     silent: false,
+    fastMode: true, // default to fast mode for better UX
   });
 
   const [history, setHistory] = useLocalStorage<HistoryItem[]>("history", []);

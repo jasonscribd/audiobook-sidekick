@@ -52,9 +52,9 @@ function AppContent() {
             console.error("Note edit failed", e);
           }
         } else if (intent === "define") {
-          replyText = await chatCompletion(`Provide a one sentence definition for: ${payload}`, settings);
+          replyText = await chatCompletion(`Provide a one sentence definition for: ${payload}`, settings, true);
         } else if (intent === "fact") {
-          replyText = await chatCompletion(`Answer briefly (2 sentences max): ${payload}`, settings);
+          replyText = await chatCompletion(`Answer briefly (2 sentences max): ${payload}`, settings, true);
         } else {
           replyText = await chatCompletion(payload, settings);
         }

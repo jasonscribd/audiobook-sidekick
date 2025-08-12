@@ -4,7 +4,7 @@ export async function transcribeAudio(blob: Blob, settings: Settings): Promise<s
   if (!settings.apiKey) throw new Error("OpenAI API key missing in Settings");
   const form = new FormData();
   form.append("model", "whisper-1");
-  form.append("file", new File([blob], "audio.webm", { type: "audio/webm" }));
+  form.append("file", new File([blob], "audio.wav", { type: "audio/wav" }));
 
   const res = await fetch("https://api.openai.com/v1/audio/transcriptions", {
     method: "POST",
@@ -24,8 +24,12 @@ export async function transcribeAudio(blob: Blob, settings: Settings): Promise<s
   return data.text as string;
 }
 
-export async function chatCompletion(userText: string, settings: Settings): Promise<string> {
+export async function chatCompletion(userText: string, settings: Settings, useSimpleModel = false): Promise<string> {
   if (!settings.apiKey) throw new Error("OpenAI API key missing");
+  
+  // Use fast model for simple tasks when enabled
+  const model = (settings.fastMode && useSimpleModel) ? "gpt-3.5-turbo" : "gpt-4o-mini";
+  
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -33,7 +37,7 @@ export async function chatCompletion(userText: string, settings: Settings): Prom
       Authorization: `Bearer ${settings.apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
+      model,
       messages: [
         { role: "system", content: settings.systemPrompt },
         { role: "user", content: userText },
