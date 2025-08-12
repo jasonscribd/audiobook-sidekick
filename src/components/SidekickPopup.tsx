@@ -118,75 +118,115 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
     }
   };
 
+  // Handle escape key to close
+  React.useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !showHistory && !showSettings) {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [onClose, showHistory, showSettings]);
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl p-8 m-4 max-w-md w-full max-h-[90vh] overflow-hidden">
-        {/* Header */}
+    <div className="fixed inset-0 bg-warm-gradient font-inter z-50">
+      {/* Main Container */}
+      <div className="max-w-[430px] mx-auto px-6 pt-10 pb-8 h-full flex flex-col">
+        
+        {/* Top Bar */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Audiobook Sidekick</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
-          >
-            ×
-          </button>
+          <span className="text-text-muted text-[13px] font-normal tracking-wide">
+            Audiobook sidekick
+          </span>
+          
+          {/* Right Icons */}
+          <div className="flex items-center space-x-4">
+            {/* Clock - History */}
+            <button
+              onClick={() => setShowHistory(true)}
+              aria-label="Open history"
+              className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 transition-opacity"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12,6 12,12 16,14"/>
+              </svg>
+            </button>
+            
+            {/* Info/Speech Bubble - Settings */}
+            <button
+              onClick={() => setShowSettings(true)}
+              aria-label="Open settings"
+              className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 transition-opacity"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/>
+              </svg>
+            </button>
+          </div>
         </div>
 
-        {/* Content */}
-        <div className="flex flex-col items-center justify-center">
-          {/* Mic Button */}
+        {/* Hero Content - Centered */}
+        <div className="flex-1 flex flex-col justify-center items-center text-center">
+          
+          {/* Sparkles Cluster */}
+          <div className="mb-3">
+            <svg className="w-7 h-7 text-accent" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0l1.5 4.5L18 6l-4.5 1.5L12 12l-1.5-4.5L6 6l4.5-1.5L12 0z"/>
+              <path d="M19 10l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z"/>
+              <path d="M5 14l0.5 1.5L7 16l-1.5 0.5L5 18l-0.5-1.5L3 16l1.5-0.5L5 14z"/>
+            </svg>
+          </div>
+
+          {/* Heading */}
+          <h1 className="font-merriweather font-bold text-[34px] text-text leading-tight mb-3">
+            Ask away
+          </h1>
+
+          {/* Helper Text */}
+          <p className="text-text-muted text-[15px] leading-relaxed max-w-[36ch] mb-7">
+            Ask about a word, explore a topic, or make a note.
+          </p>
+
+          {/* Primary CTA */}
           <button
-            className={`rounded-full w-32 h-32 flex items-center justify-center text-2xl font-bold transition-colors mb-6 ${
-              listening 
-                ? "bg-red-500 text-white" 
-                : transcribing 
-                ? "bg-gray-400 text-white"
-                : "bg-yellow-400 text-black hover:bg-yellow-500"
-            }`}
             onClick={toggleMic}
             disabled={transcribing}
+            aria-label="Tap to talk"
+            className={`w-full max-w-[560px] h-14 rounded-[17px] font-semibold text-base flex items-center justify-center space-x-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg motion-reduce:active:scale-100 ${
+              listening 
+                ? "bg-accent text-black shadow-accent-glow animate-pulse motion-reduce:animate-none" 
+                : transcribing 
+                ? "bg-accent bg-opacity-60 text-black cursor-not-allowed"
+                : "bg-accent text-black shadow-accent-glow hover:brightness-110 active:scale-[0.99]"
+            }`}
           >
-            {transcribing ? "..." : listening ? "Stop" : "Talk"}
+            {/* Mic Icon */}
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+              <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+            </svg>
+            <span>
+              {transcribing ? "Processing..." : listening ? "Listening..." : "Tap to talk"}
+            </span>
           </button>
-
-          {/* Status Text */}
-          {listening && (
-            <p className="text-gray-600 mb-4">Listening... Tap "Stop" when done</p>
-          )}
-          {transcribing && (
-            <p className="text-gray-600 mb-4">Processing your request...</p>
-          )}
-
-          {/* Secondary buttons */}
-          <div className="flex gap-4 w-full">
-            <button
-              className="flex-1 rounded-lg px-4 py-3 text-sm font-semibold bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200"
-              onClick={() => setShowHistory(true)}
-            >
-              History
-            </button>
-            <button
-              className="flex-1 rounded-lg px-4 py-3 text-sm font-semibold bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200"
-              onClick={() => setShowSettings(true)}
-            >
-              Settings
-            </button>
-          </div>
         </div>
-
-        {/* Nested modals */}
-        {showHistory && (
-          <div className="absolute inset-0 bg-white rounded-2xl">
-            <HistoryDrawer onClose={() => setShowHistory(false)} />
-          </div>
-        )}
-
-        {showSettings && (
-          <div className="absolute inset-0 bg-white rounded-2xl">
-            <SettingsPane onClose={() => setShowSettings(false)} />
-          </div>
-        )}
       </div>
+
+      {/* History Overlay */}
+      {showHistory && (
+        <div className="absolute inset-0 bg-warm-gradient">
+          <HistoryDrawer onClose={() => setShowHistory(false)} />
+        </div>
+      )}
+
+      {/* Settings Overlay */}
+      {showSettings && (
+        <div className="absolute inset-0 bg-warm-gradient">
+          <SettingsPane onClose={() => setShowSettings(false)} />
+        </div>
+      )}
     </div>
   );
 };
