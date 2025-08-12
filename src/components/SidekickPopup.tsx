@@ -18,8 +18,10 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
   const [showHistory, setShowHistory] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const [liveTranscript, setLiveTranscript] = useState('');
   const [assistantText, setAssistantText] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isNoteCommand, setIsNoteCommand] = useState(false);
   
   const { recording, start, stop } = useRecorder();
   const { addHistory, settings } = useContext(SidekickContext);
@@ -50,8 +52,10 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
   const resetToIdle = () => {
     setConversationState('idle');
     setTranscript('');
+    setLiveTranscript('');
     setAssistantText('');
     setErrorMessage('');
+    setIsNoteCommand(false);
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
@@ -68,6 +72,33 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
   const handleTryAgain = () => {
     resetToIdle();
   };
+
+  // Simulate real-time transcription while listening
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (conversationState === 'listening') {
+      const phrases = [
+        "What is...",
+        "What is the meaning...",
+        "What is the meaning of...",
+        "What is the meaning of quixotic?",
+      ];
+      let currentIndex = 0;
+      
+      interval = setInterval(() => {
+        if (currentIndex < phrases.length) {
+          setLiveTranscript(phrases[currentIndex]);
+          currentIndex++;
+        }
+      }, 800);
+    } else {
+      setLiveTranscript('');
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [conversationState]);
 
   const toggleMic = async () => {
     if (conversationState === 'idle') {
@@ -108,7 +139,8 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
         let streamedText = '';
 
         if (intent === "note") {
-          // For notes, just show "Noted." and complete
+          // For notes, show the note content and "Noted." response
+          setIsNoteCommand(true);
           setAssistantText("Noted.");
           setConversationState('complete');
           
@@ -264,11 +296,11 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
           
           {/* Top Bar */}
           <div className="flex justify-between items-center mb-6">
-            {/* Close X Button - only show in idle state */}
-            {conversationState === 'idle' && (
+            {/* Close X Button - show in idle or complete states */}
+            {(conversationState === 'idle' || conversationState === 'complete') && (
               <button
-                onClick={onClose}
-                aria-label="Close"
+                onClick={conversationState === 'complete' ? resetToIdle : onClose}
+                aria-label={conversationState === 'complete' ? 'Close response' : 'Close'}
                 className="w-8 h-8 flex items-center justify-center text-text opacity-70 hover:opacity-100 transition-opacity"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -363,13 +395,23 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
             {conversationState !== 'idle' && (
               <>
                 <h2 className="font-merriweather font-bold text-[32px] text-text leading-tight max-w-[30ch] mb-2">
-                  {conversationState === 'listening' && 'Listening...'}
+                  {conversationState === 'listening' && (liveTranscript || 'Listening...')}
                   {conversationState === 'transcribing' && (
                     <span className="animate-pulse motion-reduce:animate-none">Processing...</span>
                   )}
                   {(conversationState === 'streaming' || conversationState === 'complete') && transcript}
                   {conversationState === 'error' && 'Something went wrong'}
                 </h2>
+
+                {/* Note Content Display - show the actual note content for note commands */}
+                {isNoteCommand && conversationState === 'complete' && (
+                  <div className="max-w-[40ch] text-center mt-4 mb-4">
+                    <div className="text-text-muted text-sm mb-2">Note saved:</div>
+                    <div className="text-text text-base leading-relaxed italic border-l-2 border-accent pl-4">
+                      {transcript}
+                    </div>
+                  </div>
+                )}
 
                 {/* Cancel Link */}
                 {shouldShowCancel() && (
@@ -412,7 +454,7 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
               </div>
             )}
 
-            {/* Primary CTA */}
+            {/* Primary CTA - only show in idle, listening, and complete states */}
             {(conversationState === 'idle' || conversationState === 'listening' || conversationState === 'complete') && (
               <button
                 onClick={toggleMic}
