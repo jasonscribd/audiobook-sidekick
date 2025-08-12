@@ -1,11 +1,11 @@
-import { useState, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { SidekickProvider, SidekickContext } from "./context/SidekickContext";
 import SettingsPane from "./components/SettingsPane";
 import HistoryDrawer from "./components/HistoryDrawer";
 import { useRecorder } from "./hooks/useRecorder";
 import { transcribeAudio } from "./utils/openai";
 import { parseIntent } from "./utils/intent";
-import { chatCompletion, synthesizeSpeech } from "./utils/openai";
+import { chatCompletion, chatCompletionStreaming, synthesizeSpeech, preWarmConnections } from "./utils/openai";
 
 function AppContent() {
   const [listening, setListening] = useState(false);
@@ -15,6 +15,20 @@ function AppContent() {
 
   const { recording, start, stop } = useRecorder();
   const { addHistory, settings } = useContext(SidekickContext);
+
+  // Pre-warm API connections when API key is available
+  React.useEffect(() => {
+    if (settings.apiKey) {
+      preWarmConnections(settings.apiKey);
+      
+      // Re-warm every 10 minutes to keep connections alive
+      const interval = setInterval(() => {
+        preWarmConnections(settings.apiKey);
+      }, 600000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [settings.apiKey]);
 
   const toggleMic = async () => {
     if (!recording) {
@@ -40,6 +54,8 @@ function AppContent() {
         const intent = parsed.intent;
         let payload = parsed.payload;
         let replyText = "";
+        let isStreaming = false;
+
         if (intent === "note") {
           replyText = "Noted.";
           // Lightly edit note text for punctuation/clarity
@@ -51,16 +67,54 @@ function AppContent() {
           } catch (e) {
             console.error("Note edit failed", e);
           }
-        } else if (intent === "define") {
-          replyText = await chatCompletion(`Provide a one sentence definition for: ${payload}`, settings, true);
-        } else if (intent === "fact") {
-          replyText = await chatCompletion(`Answer briefly (2 sentences max): ${payload}`, settings, true);
+        } else if (intent === "define" || intent === "fact") {
+          // Use streaming for definitions and facts in fast mode
+          if (settings.fastMode) {
+            isStreaming = true;
+            let streamingText = "";
+            const prompt = intent === "define" 
+              ? `Define briefly: ${payload}`
+              : `Answer concisely: ${payload}`;
+            
+            replyText = await chatCompletionStreaming(
+              prompt, 
+              settings, 
+              true, // use simple model
+              (chunk) => {
+                streamingText += chunk;
+                // Start TTS as soon as we have a meaningful chunk (5+ chars)
+                if (streamingText.length >= 5 && streamingText.includes(' ')) {
+                  if (!settings.silent) {
+                    synthesizeSpeech(streamingText, settings)
+                      .then(audioBuf => {
+                        const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+                        return ctx.decodeAudioData(audioBuf);
+                      })
+                      .then(audioBuffer => {
+                        const source = ctx.createBufferSource();
+                        source.buffer = audioBuffer;
+                        source.connect(ctx.destination);
+                        source.start();
+                      })
+                      .catch(err => console.error("Streaming TTS error:", err));
+                  }
+                  streamingText = ""; // Reset to avoid re-speaking same text
+                }
+              }
+            );
+          } else {
+            // Fallback to regular completion
+            const prompt = intent === "define"
+              ? `Provide a one sentence definition for: ${payload}`
+              : `Answer briefly (2 sentences max): ${payload}`;
+            replyText = await chatCompletion(prompt, settings, true);
+          }
         } else {
           replyText = await chatCompletion(payload, settings);
         }
 
-        // TTS playback (skip if silent mode)
-        if (!settings.silent) {
+        // TTS playback (skip if silent mode or already streamed)
+        if (!settings.silent && !isStreaming) {
           try {
             const audioBuf = await synthesizeSpeech(replyText, settings);
             const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();

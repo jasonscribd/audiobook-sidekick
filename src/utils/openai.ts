@@ -28,7 +28,10 @@ export async function chatCompletion(userText: string, settings: Settings, useSi
   if (!settings.apiKey) throw new Error("OpenAI API key missing");
   
   // Use fast model for simple tasks when enabled
-  const model = (settings.fastMode && useSimpleModel) ? "gpt-3.5-turbo" : "gpt-4o-mini";
+  const model = (settings.fastMode && useSimpleModel) ? "gpt-3.5-turbo-0125" : "gpt-4o-mini";
+  
+  // Ultra-short tokens for simple tasks in fast mode
+  const maxTokens = (settings.fastMode && useSimpleModel) ? 25 : 80;
   
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -42,7 +45,9 @@ export async function chatCompletion(userText: string, settings: Settings, useSi
         { role: "system", content: settings.systemPrompt },
         { role: "user", content: userText },
       ],
-      max_tokens: 80,
+      max_tokens: maxTokens,
+      temperature: 0, // Consistent, faster responses
+      stream: false, // We'll implement streaming separately
     }),
   });
 
@@ -51,6 +56,84 @@ export async function chatCompletion(userText: string, settings: Settings, useSi
   const reply = data.choices?.[0]?.message?.content?.trim();
   if (settings.debug) console.debug("Chat response", data);
   return reply || "";
+}
+
+// New streaming chat completion function
+export async function chatCompletionStreaming(
+  userText: string, 
+  settings: Settings, 
+  useSimpleModel = false,
+  onChunk?: (chunk: string) => void
+): Promise<string> {
+  if (!settings.apiKey) throw new Error("OpenAI API key missing");
+  
+  const model = (settings.fastMode && useSimpleModel) ? "gpt-3.5-turbo-0125" : "gpt-4o-mini";
+  const maxTokens = (settings.fastMode && useSimpleModel) ? 25 : 80;
+  
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${settings.apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: "system", content: settings.systemPrompt },
+        { role: "user", content: userText },
+      ],
+      max_tokens: maxTokens,
+      temperature: 0,
+      stream: true,
+    }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData?.error?.message || "Streaming chat request failed");
+  }
+
+  const reader = res.body?.getReader();
+  if (!reader) throw new Error("No response body reader");
+
+  let fullResponse = "";
+  let buffer = "";
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = new TextDecoder().decode(value);
+      buffer += chunk;
+
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || ''; // Keep incomplete line in buffer
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+          if (data === '[DONE]') continue;
+          
+          try {
+            const parsed = JSON.parse(data);
+            const content = parsed.choices?.[0]?.delta?.content || '';
+            if (content) {
+              fullResponse += content;
+              onChunk?.(content);
+            }
+          } catch (e) {
+            // Skip malformed JSON
+          }
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  if (settings.debug) console.debug("Streaming response complete:", fullResponse);
+  return fullResponse.trim();
 }
 
 export async function synthesizeSpeech(text: string, settings: Settings): Promise<ArrayBuffer> {
@@ -76,4 +159,58 @@ export async function synthesizeSpeech(text: string, settings: Settings): Promis
 
   const arrayBuf = await res.arrayBuffer();
   return arrayBuf;
+}
+
+// Pre-warm API connections to eliminate cold starts
+export function preWarmConnections(apiKey: string): void {
+  if (!apiKey) return;
+  
+  // Pre-warm chat completions endpoint
+  fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "gpt-3.5-turbo-0125",
+      messages: [{ role: "user", content: "ping" }],
+      max_tokens: 1,
+    }),
+  }).catch(() => {
+    // Ignore errors, this is just for warming
+  });
+
+  // Pre-warm TTS endpoint
+  fetch("https://api.openai.com/v1/audio/speech", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "tts-1",
+      voice: "alloy",
+      input: "test",
+      format: "mp3",
+    }),
+  }).catch(() => {
+    // Ignore errors, this is just for warming
+  });
+
+  // Pre-warm Whisper endpoint
+  const dummyWav = new Blob([new ArrayBuffer(44)], { type: "audio/wav" });
+  const form = new FormData();
+  form.append("model", "whisper-1");
+  form.append("file", new File([dummyWav], "test.wav", { type: "audio/wav" }));
+  
+  fetch("https://api.openai.com/v1/audio/transcriptions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: form,
+  }).catch(() => {
+    // Ignore errors, this is just for warming
+  });
 } 
