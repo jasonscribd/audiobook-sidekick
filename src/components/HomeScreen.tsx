@@ -17,12 +17,19 @@ const HomeScreen: React.FC = () => {
 
   return (
     <>
-      {/* Main Container - Phone Viewport Layout */}
-      <div className="h-full flex flex-col max-w-[430px] mx-auto px-6 pt-10 pb-8 font-inter">
+      {/* Phone Viewport Container - Grid Layout */}
+      <div 
+        className="grid grid-rows-[auto_1fr_auto] max-w-[430px] mx-auto font-inter relative overflow-hidden"
+        style={{
+          minHeight: '100dvh',
+          height: '-webkit-fill-available',
+          paddingBottom: 'calc(env(safe-area-inset-bottom) + 0px)'
+        }}
+      >
         
-
-
-        {/* Album Artwork */}
+        {/* Row 1: Main Content */}
+        <div className="px-6 pt-10" style={{ paddingBottom: 'calc(96px + env(safe-area-inset-bottom) + 20px)' }}>
+          {/* Album Artwork */}
         <div className="flex justify-center mt-5 mb-4">
           <img
             src={`${(import.meta as any).env.BASE_URL}covers/Femalequixote.jpg`}
@@ -69,8 +76,8 @@ const HomeScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Transport Controls */}
-        <div className="flex items-center justify-center space-x-8 opacity-80 mb-3">
+          {/* Transport Controls */}
+          <div className="flex items-center justify-center space-x-8 opacity-80 mb-6">
           {/* Skip Back */}
           <button 
             className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
@@ -131,59 +138,70 @@ const HomeScreen: React.FC = () => {
               size={29} 
               strokeWidth={1.75}
             />
-          </button>
+                      </button>
+          </div>
         </div>
 
-        {/* Bottom Navigation */}
-        <div className="flex justify-between items-center mt-5" 
-             style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px) + 10px, 10px)' }}>
-          <button 
-            onClick={() => {/* Menu/Settings functionality */}}
-            className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
-            aria-label="Menu"
-          >
-            <AlignJustify 
-              size={23} 
-              strokeWidth={1.75}
-            />
-            <span className="text-xs text-text-muted">Menu</span>
-          </button>
-          
-          <button 
-            onClick={() => {/* Bookmark functionality */}}
-            className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
-            aria-label="Bookmark"
-          >
-            <Bookmark 
-              size={23} 
-              strokeWidth={1.75}
-            />
-            <span className="text-xs text-text-muted">Bookmark</span>
-          </button>
-          
-          <button 
-            onClick={() => {/* Timer functionality */}}
-            className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
-            aria-label="Timer"
-          >
-            <Timer 
-              size={23} 
-              strokeWidth={1.75}
-            />
-            <span className="text-xs text-text-muted">Timer</span>
-          </button>
-          
-          <button 
-            onClick={() => {/* Speed functionality */}}
-            className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
-            aria-label="Speed"
-          >
-            <Gauge 
-              size={23} 
-              strokeWidth={1.75}
-            />
-            <span className="text-xs text-text-muted">Speed</span>
-          </button>
+        {/* Row 2: Spacer/Scroll Area (grows as needed) */}
+        <div className="min-h-0"></div>
+
+        {/* Row 3: Bottom Navigation - Anchored to Bottom */}
+        <div 
+          className="w-full bg-bg border-t border-white border-opacity-[0.08] z-10"
+          style={{
+            height: '72px',
+            paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)'
+          }}
+        >
+          <div className="flex justify-between items-center h-16 px-6">
+            <button 
+              onClick={() => {/* Menu/Settings functionality */}}
+              className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-[#EDEDED] opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+              aria-label="Menu"
+            >
+              <AlignJustify 
+                size={24} 
+                strokeWidth={1.75}
+              />
+              <span className="text-xs text-[#B9B9B9] font-inter">Menu</span>
+            </button>
+            
+            <button 
+              onClick={() => {/* Bookmark functionality */}}
+              className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-[#EDEDED] opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+              aria-label="Bookmark"
+            >
+              <Bookmark 
+                size={24} 
+                strokeWidth={1.75}
+              />
+              <span className="text-xs text-[#B9B9B9] font-inter">Bookmark</span>
+            </button>
+            
+            <button 
+              onClick={() => {/* Timer functionality */}}
+              className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-[#EDEDED] opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+              aria-label="Timer"
+            >
+              <Timer 
+                size={24} 
+                strokeWidth={1.75}
+              />
+              <span className="text-xs text-[#B9B9B9] font-inter">Timer</span>
+            </button>
+            
+            <button 
+              onClick={() => {/* Speed functionality */}}
+              className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-[#EDEDED] opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+              aria-label="Speed"
+            >
+              <Gauge 
+                size={24} 
+                strokeWidth={1.75}
+              />
+              <span className="text-xs text-[#B9B9B9] font-inter">Speed</span>
+            </button>
+          </div>
         </div>
       </div>
 
