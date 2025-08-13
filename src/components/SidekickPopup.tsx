@@ -260,7 +260,7 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-45 font-inter z-50 flex items-end"
+      className="absolute inset-0 bg-black bg-opacity-45 font-inter z-50 flex items-end"
       onClick={(e) => {
         if (e.target === e.currentTarget && !showHistory && !showSettings) {
           if (conversationState === 'idle') {
@@ -269,11 +269,11 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
         }
       }}
     >
-      {/* Bottom Sheet Container */}
+      {/* Bottom Sheet Container - matches phone viewport width */}
       <div 
-        className="w-full bg-bge rounded-t-[24px] shadow-[0_-10px_40px_rgba(0,0,0,0.35)] max-h-[70vh] min-h-[420px] overflow-hidden border-t border-white border-opacity-5"
+        className="w-full max-w-[430px] mx-auto bg-bge rounded-t-[24px] shadow-[0_-10px_40px_rgba(0,0,0,0.35)] max-h-[70vh] min-h-[420px] overflow-hidden border-t border-white border-opacity-5"
         style={{
-          paddingBottom: 'max(env(safe-area-inset-bottom, 0px) + 12px, 12px)',
+          paddingBottom: `calc(env(safe-area-inset-bottom) + 12px)`,
           height: 'min(60vh, 640px)'
         }}
         onClick={(e) => e.stopPropagation()}

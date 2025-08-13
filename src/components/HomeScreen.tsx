@@ -354,12 +354,12 @@ const HomeScreen: React.FC = () => {
             }}
           ></div>
         </div>
-      </div>
 
-      {/* Sidekick Popup */}
-      {showSidekick && (
-        <SidekickPopup onClose={() => setShowSidekick(false)} />
-      )}
+        {/* Sidekick Popup - positioned within phone viewport */}
+        {showSidekick && (
+          <SidekickPopup onClose={() => setShowSidekick(false)} />
+        )}
+      </div>
     </>
   );
 };
