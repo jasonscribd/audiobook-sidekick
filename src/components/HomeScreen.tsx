@@ -46,7 +46,7 @@ const HomeScreen: React.FC = () => {
           aria-label="Ask me anything or make a note"
           className="w-full max-w-[560px] h-14 bg-accent text-black font-semibold text-base rounded-[17px] shadow-accent-glow flex items-center justify-center space-x-2 transition-all duration-200 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg active:scale-[0.99] motion-reduce:active:scale-100 mb-4"
         >
-          <span className="text-lg">✨</span>
+          <span className="text-lg text-black">✨</span>
           <span>Ask me anything or make a note</span>
         </button>
 
@@ -135,10 +135,11 @@ const HomeScreen: React.FC = () => {
         </div>
 
         {/* Bottom Navigation */}
-        <div className="flex justify-between items-center text-text opacity-70 mt-3">
+        <div className="flex justify-between items-center mt-5" 
+             style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px) + 10px, 10px)' }}>
           <button 
-            className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 opacity-70 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none"
-            tabIndex={-1}
+            onClick={() => {/* Menu/Settings functionality */}}
+            className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
             aria-label="Menu"
           >
             <AlignJustify 
@@ -149,8 +150,8 @@ const HomeScreen: React.FC = () => {
           </button>
           
           <button 
-            className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 opacity-70 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none"
-            tabIndex={-1}
+            onClick={() => {/* Bookmark functionality */}}
+            className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
             aria-label="Bookmark"
           >
             <Bookmark 
@@ -161,8 +162,8 @@ const HomeScreen: React.FC = () => {
           </button>
           
           <button 
-            className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 opacity-70 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none"
-            tabIndex={-1}
+            onClick={() => {/* Timer functionality */}}
+            className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
             aria-label="Timer"
           >
             <Timer 
@@ -173,8 +174,8 @@ const HomeScreen: React.FC = () => {
           </button>
           
           <button 
-            className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 opacity-70 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none"
-            tabIndex={-1}
+            onClick={() => {/* Speed functionality */}}
+            className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
             aria-label="Speed"
           >
             <Gauge 
