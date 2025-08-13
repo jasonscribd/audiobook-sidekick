@@ -85,9 +85,12 @@ const HomeScreen: React.FC = () => {
               fill="#000000"
               style={{ flexShrink: 0 }}
             >
-              <path d="M12 0l1.09 3.09L16 2l-.91 3.09L18 6l-3.09.91L16 10l-3.09-.91L12 12l-1.09-3.09L8 10l.91-3.09L6 6l3.09-.91L8 2l3.09 1.09L12 0z"/>
-              <path d="M19.5 7.5l.55 1.55L22 8.5l-1.45.55L19.5 10.5l-.55-1.45L17.5 8.5l1.45-.55L19.5 7.5z"/>
-              <path d="M6.5 17.5l.55 1.55L9 18.5l-1.45.55L6.5 20.5l-.55-1.45L4.5 18.5l1.45-.55L6.5 17.5z"/>
+              {/* Main sparkle - matches ✨ emoji shape */}
+              <path d="M12 1.5L13.5 7.5L19.5 9L13.5 10.5L12 16.5L10.5 10.5L4.5 9L10.5 7.5L12 1.5Z"/>
+              {/* Top right accent sparkle */}
+              <path d="M18.5 3L19 5L21 5.5L19 6L18.5 8L18 6L16 5.5L18 5L18.5 3Z"/>
+              {/* Bottom left accent sparkle */}
+              <path d="M5.5 15L6 17L8 17.5L6 18L5.5 20L5 18L3 17.5L5 17L5.5 15Z"/>
             </svg>
             <span>Ask me anything or make a note</span>
           </button>
