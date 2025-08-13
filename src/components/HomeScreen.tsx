@@ -19,15 +19,16 @@ const HomeScreen: React.FC = () => {
     <>
       {/* Phone Viewport Container - Grid Layout */}
       <div 
-        className="grid grid-rows-[auto_1fr_auto] max-w-[430px] mx-auto font-inter relative bg-warm-gradient"
+        className="grid grid-rows-[auto_1fr_auto] max-w-[430px] mx-auto font-inter relative"
         style={{
           minHeight: '100vh',
-          height: '100dvh'
+          height: '100dvh',
+          background: 'var(--phone-bg)'
         }}
       >
         
         {/* Row 1: Main Content */}
-        <div className="px-6 pt-10" style={{ paddingLeft: '24px', paddingRight: '24px', paddingTop: '40px', paddingBottom: 'calc(56px + env(safe-area-inset-bottom) + 20px)' }}>
+        <div style={{ paddingLeft: '24px', paddingRight: '24px', paddingTop: '40px', paddingBottom: 'calc(56px + env(safe-area-inset-bottom) + 20px)' }}>
           {/* Album Artwork */}
         <div className="flex justify-center mb-4" style={{ marginTop: '20px' }}>
           <img
@@ -160,8 +161,10 @@ const HomeScreen: React.FC = () => {
         <div className="w-full z-10 flex flex-col items-center">
           {/* Navigation Buttons */}
           <div 
-            className="w-full flex justify-between items-center px-6"
+            className="w-full flex justify-between items-center"
             style={{
+              paddingLeft: '24px',
+              paddingRight: '24px',
               paddingBottom: `calc(env(safe-area-inset-bottom) + 12px)`
             }}
           >

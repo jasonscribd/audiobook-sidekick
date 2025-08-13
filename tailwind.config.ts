@@ -27,9 +27,6 @@ const config: Config = {
         'accent-glow': '0 0 60px rgba(242, 253, 83, 0.25)',
         'img-soft': '0 20px 40px rgba(0, 0, 0, 0.35)',
       },
-              backgroundImage: {
-          'warm-gradient': 'linear-gradient(to bottom, #201C14 0%, #2B241D 50%, #3B3934 100%)',
-        },
     },
   },
   plugins: [],

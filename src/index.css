@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Design System - Single source of truth for phone background */
+:root {
+  --phone-bg: linear-gradient(to bottom, #201C14 0%, #2B241D 50%, #3B3934 100%);
+}
+
 /* Phone Simulation Styles */
 html, body {
   margin: 0;
@@ -52,9 +57,7 @@ html, body {
   outline: none;
 }
 
-.phone-viewport:focus-within {
-  /* Ensure focus stays within phone */
-}
+/* Focus-within styles handled by individual interactive elements */
 
 /* Smooth scaling transitions */
 .phone-container {
