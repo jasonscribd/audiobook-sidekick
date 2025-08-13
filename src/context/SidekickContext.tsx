@@ -39,7 +39,10 @@ export function SidekickProvider({ children }: { children: ReactNode }) {
   const [history, setHistory] = useLocalStorage<HistoryItem[]>("history", []);
 
   const updateSettings = (partial: Partial<Settings>) => setSettings({ ...settings, ...partial });
-  const addHistory = (item: HistoryItem) => setHistory([...history, item]);
+  const addHistory = (item: HistoryItem) => {
+    console.log('Adding to history:', item); // Debug logging
+    setHistory([...history, item]);
+  };
 
   return (
     <SidekickContext.Provider value={{ settings, updateSettings, history, addHistory }}>

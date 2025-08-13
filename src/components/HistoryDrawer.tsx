@@ -30,6 +30,9 @@ interface Props {
 
 export default function HistoryDrawer({ onClose }: Props) {
   const { history } = useContext(SidekickContext);
+  
+  // Debug logging
+  console.log('History drawer - total items:', history.length, history);
 
   // refs for dynamic sizing
   const listRef = useRef<any>(null);
