@@ -29,9 +29,9 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
   const responseRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Stop audio playback when sidekick opens
+  // Pause audio playback when sidekick opens (preserves position)
   useEffect(() => {
-    audioService.stop();
+    audioService.pause();
   }, []);
 
   // Pre-warm API connections when API key is available
