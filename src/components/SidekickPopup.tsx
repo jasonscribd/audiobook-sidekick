@@ -25,7 +25,7 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
   const [isNoteCommand, setIsNoteCommand] = useState(false);
   
   const { recording, start, stop } = useRecorder();
-  const { addHistory, settings, getCurrentBookContext } = useContext(SidekickContext);
+  const { addHistory, settings } = useContext(SidekickContext);
   const responseRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -106,9 +106,6 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
           timestamp: new Date().toLocaleTimeString(),
           role: "user",
           content: text,
-          meta: {
-            bookId: settings.currentBookId,
-          },
         });
 
         // Start streaming response
@@ -131,9 +128,7 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
           try {
             payload = await chatCompletion(
               `Please correct punctuation and make very light edits for clarity while keeping the original words and order as much as possible. Return only the corrected text.\n\n${payload}`,
-              settings,
-              false, // useSimpleModel
-              getCurrentBookContext()
+              settings
             );
           } catch (e) {
             console.error("Note edit failed", e);
@@ -144,10 +139,6 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
             timestamp: new Date().toLocaleTimeString(),
             role: "note",
             content: payload,
-            meta: {
-              bookId: settings.currentBookId,
-              usedContext: settings.useBookContext && !!getCurrentBookContext()?.bookContextMarkdown?.trim(),
-            },
           });
         } else {
           // Stream the response
@@ -162,7 +153,7 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
 
           try {
             // Simulate streaming by chunking the response
-            const response = await chatCompletion(prompt, settings, true, getCurrentBookContext()); // useSimpleModel=true for define/fact
+            const response = await chatCompletion(prompt, settings);
             const words = response.split(' ');
             
             for (let i = 0; i < words.length; i++) {
@@ -201,10 +192,6 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
               timestamp: new Date().toLocaleTimeString(),
               role: "sidekick",
               content: response,
-              meta: {
-                bookId: settings.currentBookId,
-                usedContext: settings.useBookContext && !!getCurrentBookContext()?.bookContextMarkdown?.trim(),
-              },
             });
 
           } catch (error: any) {
