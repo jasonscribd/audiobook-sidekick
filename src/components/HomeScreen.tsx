@@ -22,13 +22,12 @@ const HomeScreen: React.FC = () => {
         className="grid grid-rows-[auto_1fr_auto] max-w-[430px] mx-auto font-inter relative overflow-hidden"
         style={{
           minHeight: '100dvh',
-          height: '-webkit-fill-available',
-          paddingBottom: 'calc(env(safe-area-inset-bottom) + 0px)'
+          height: '-webkit-fill-available'
         }}
       >
         
         {/* Row 1: Main Content */}
-        <div className="px-6 pt-10" style={{ paddingBottom: 'calc(96px + env(safe-area-inset-bottom) + 20px)' }}>
+        <div className="px-6 pt-10" style={{ paddingBottom: 'calc(64px + env(safe-area-inset-bottom) + 20px)' }}>
           {/* Album Artwork */}
         <div className="flex justify-center mt-5 mb-4">
           <img
@@ -147,13 +146,12 @@ const HomeScreen: React.FC = () => {
 
         {/* Row 3: Bottom Navigation - Anchored to Bottom */}
         <div 
-          className="w-full bg-bg border-t border-white border-opacity-[0.08] z-10"
+          className="w-full bg-bg border-t border-white border-opacity-[0.08] z-10 flex justify-between items-center px-6"
           style={{
-            height: '72px',
-            paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)'
+            height: 'calc(64px + env(safe-area-inset-bottom))',
+            paddingBottom: 'env(safe-area-inset-bottom)'
           }}
         >
-          <div className="flex justify-between items-center h-16 px-6">
             <button 
               onClick={() => {/* Menu/Settings functionality */}}
               className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-[#EDEDED] opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
@@ -201,7 +199,6 @@ const HomeScreen: React.FC = () => {
               />
               <span className="text-xs text-[#B9B9B9] font-inter">Speed</span>
             </button>
-          </div>
         </div>
       </div>
 
