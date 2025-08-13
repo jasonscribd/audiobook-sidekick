@@ -8,7 +8,8 @@ import {
   AlignJustify,
   Bookmark,
   Timer,
-  Gauge
+  Gauge,
+  Sparkles
 } from "lucide-react";
 import SidekickPopup from "./SidekickPopup";
 
@@ -27,18 +28,17 @@ const HomeScreen: React.FC = () => {
         } as React.CSSProperties & { WebkitHeight?: string }}
       >
         
-        {/* Row 1: TopContent (Album Art + Title) - Scrollable */}
+        {/* Row 1: TopHero (Album Art + Title) - Anchored to Top */}
         <div 
-          className="overflow-y-auto"
           style={{ 
             paddingLeft: '24px', 
             paddingRight: '24px', 
-            paddingTop: '40px', 
-            paddingBottom: '120px' // Space for BottomDock
+            paddingTop: `calc(env(safe-area-inset-top) + 12px)`,
+            paddingBottom: '16px'
           }}
         >
           {/* Album Artwork */}
-          <div className="flex justify-center mb-4" style={{ marginTop: '20px' }}>
+          <div className="flex justify-center mb-4">
             <img
               src={`${(import.meta as any).env.BASE_URL}covers/treasure_island_1.jpg`}
               alt="Treasure Island by Robert Louis Stevenson"
@@ -51,15 +51,15 @@ const HomeScreen: React.FC = () => {
           </div>
 
           {/* Title */}
-          <h1 className="text-center text-text font-inter font-semibold text-[23px] leading-tight">
+          <h1 className="text-center text-text font-inter font-semibold text-[24px] leading-tight">
             Treasure Island
           </h1>
         </div>
 
 
 
-        {/* Row 2: Spacer/Scroll Area (grows as needed) */}
-        <div className="min-h-0"></div>
+        {/* Row 2: Middle Spacer/Scroll Area (grows/shrinks as needed) */}
+        <div className="min-h-0 overflow-y-auto"></div>
 
         {/* Row 3: BottomDock - Fixed to Bottom */}
         <div 
@@ -79,7 +79,11 @@ const HomeScreen: React.FC = () => {
             className="w-full bg-accent text-black font-semibold text-base rounded-[18px] shadow-accent-glow flex items-center justify-center space-x-2 transition-all duration-200 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg active:scale-[0.99] motion-reduce:active:scale-100"
             style={{ height: '56px', marginBottom: '14px' }}
           >
-            <span className="text-lg text-black">✨</span>
+            <Sparkles 
+              size={20} 
+              strokeWidth={1.75}
+              style={{ color: '#000000' }}
+            />
             <span>Ask me anything or make a note</span>
           </button>
 
