@@ -36,17 +36,14 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
 
   // Pre-warm API connections when API key is available
   useEffect(() => {
-    if (settings.apiKey) {
+    if (settings.apiKey && settings.prewarm) {
       preWarmConnections(settings.apiKey);
-      
-      // Re-warm every 10 minutes to keep connections alive
       const interval = setInterval(() => {
         preWarmConnections(settings.apiKey);
       }, 600000);
-      
       return () => clearInterval(interval);
     }
-  }, [settings.apiKey]);
+  }, [settings.apiKey, settings.prewarm]);
 
   // Auto-scroll to keep latest response in view
   useEffect(() => {
@@ -178,7 +175,17 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
             if (!settings.silent) {
               try {
                 const audioBuf = await synthesizeSpeech(response, settings);
-                const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+                // Reuse a single AudioContext to avoid creating many instances
+                const getCtx = (() => {
+                  let shared: AudioContext | null = null;
+                  return () => {
+                    if (!shared) {
+                      shared = new (window.AudioContext || (window as any).webkitAudioContext)();
+                    }
+                    return shared;
+                  };
+                })();
+                const ctx = getCtx();
                 const audioBuffer = await ctx.decodeAudioData(audioBuf);
                 const source = ctx.createBufferSource();
                 source.buffer = audioBuffer;

@@ -83,6 +83,15 @@ export default function SettingsPane({ onClose }: Props) {
         <label className="flex items-center gap-2 mb-4">
           <input
             type="checkbox"
+            checked={!!localSettings.prewarm}
+            onChange={(e) => setLocalSettings({ ...localSettings, prewarm: e.target.checked })}
+          />
+          <span>Pre-warm OpenAI APIs (reduces first-response latency)</span>
+        </label>
+
+        <label className="flex items-center gap-2 mb-4">
+          <input
+            type="checkbox"
             checked={localSettings.debug}
             onChange={(e) => setLocalSettings({ ...localSettings, debug: e.target.checked })}
           />

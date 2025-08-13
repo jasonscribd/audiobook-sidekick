@@ -175,6 +175,20 @@ const HomeScreen: React.FC = () => {
             <div 
               className="relative w-full bg-track bg-opacity-60 rounded-full mb-2 cursor-pointer" 
               style={{ height: '4px' }}
+              role="slider"
+              aria-valuemin={0}
+              aria-valuemax={Math.floor(audioState.duration || 0)}
+              aria-valuenow={Math.floor(audioState.currentTime || 0)}
+              aria-label="Seek"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (!audioState.duration) return;
+                const step = 5; // seconds per arrow
+                if (e.key === 'ArrowRight') audioService.seek(audioState.currentTime + step);
+                if (e.key === 'ArrowLeft') audioService.seek(audioState.currentTime - step);
+                if (e.key === 'Home') audioService.seek(0);
+                if (e.key === 'End') audioService.seek(audioState.duration);
+              }}
               onClick={handleProgressClick}
             >
               <div className="h-full bg-accent rounded-full" style={{ width: `${progressPercentage}%` }}></div>

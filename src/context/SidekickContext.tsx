@@ -15,6 +15,7 @@ export type Settings = {
   debug: boolean;
   silent: boolean; // if true, skip TTS playback
   fastMode: boolean; // if true, use gpt-3.5-turbo-mini for simple tasks
+  prewarm?: boolean; // gate for API pre-warming
 };
 
 interface SidekickContextValue {
@@ -34,13 +35,17 @@ export function SidekickProvider({ children }: { children: ReactNode }) {
     debug: false,
     silent: false,
     fastMode: true, // default to fast mode for better UX
+    prewarm: false,
   });
 
   const [history, setHistory] = useLocalStorage<HistoryItem[]>("history", []);
 
   const updateSettings = (partial: Partial<Settings>) => setSettings({ ...settings, ...partial });
   const addHistory = (item: HistoryItem) => {
-    console.log('Adding to history:', item); // Debug logging
+    if (settings.debug) {
+      // eslint-disable-next-line no-console
+      console.log('Adding to history:', item);
+    }
     setHistory([...history, item]);
   };
 

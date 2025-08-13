@@ -45,6 +45,9 @@ class AudioService {
         this.updateState({
           currentTime: this.audio.currentTime,
         });
+        try {
+          localStorage.setItem('audio:lastTime', String(this.audio.currentTime));
+        } catch {}
         this.updateThrottle = null;
       }, 150); // ~6.7 updates per second
     });
@@ -96,6 +99,13 @@ class AudioService {
     if (this.audio.src !== audioSrc) {
       this.audio.src = audioSrc;
       this.updateState({ status: "loading", error: undefined });
+      try {
+        const saved = localStorage.getItem('audio:lastTime');
+        if (saved) {
+          const t = parseFloat(saved);
+          if (!Number.isNaN(t)) this.audio.currentTime = t;
+        }
+      } catch {}
     }
   }
 

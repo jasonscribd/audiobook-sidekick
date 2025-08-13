@@ -1,22 +1,38 @@
 import { Settings } from "../context/SidekickContext";
 
-export async function transcribeAudio(blob: Blob, settings: Settings): Promise<string> {
+type FetchOpts = { signal?: AbortSignal; timeoutMs?: number };
+
+async function fetchWithTimeout(input: RequestInfo, init: RequestInit = {}, timeoutMs = 10000): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(input, { ...init, signal: init.signal ?? controller.signal });
+    return res;
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+export async function transcribeAudio(blob: Blob, settings: Settings, opts: FetchOpts = {}): Promise<string> {
   if (!settings.apiKey) throw new Error("OpenAI API key missing in Settings");
   const form = new FormData();
   form.append("model", "whisper-1");
   form.append("file", new File([blob], "audio.wav", { type: "audio/wav" }));
 
-  const res = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+  const res = await fetchWithTimeout("https://api.openai.com/v1/audio/transcriptions", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${settings.apiKey}`,
     },
     body: form,
-  });
+    signal: opts.signal,
+  }, opts.timeoutMs ?? 15000);
 
-  const data = await res.json();
+  let data: any = null;
+  try { data = await res.json(); } catch { /* ignore */ }
   if (!res.ok) {
-    throw new Error(data?.error?.message || "Transcription failed");
+    const message = data?.error?.message || `Transcription failed (status ${res.status})`;
+    throw new Error(message);
   }
   if (settings.debug) {
     console.debug("Whisper response", data);
@@ -24,7 +40,7 @@ export async function transcribeAudio(blob: Blob, settings: Settings): Promise<s
   return data.text as string;
 }
 
-export async function chatCompletion(userText: string, settings: Settings, useSimpleModel = false): Promise<string> {
+export async function chatCompletion(userText: string, settings: Settings, useSimpleModel = false, opts: FetchOpts = {}): Promise<string> {
   if (!settings.apiKey) throw new Error("OpenAI API key missing");
   
   // Use fast model for simple tasks when enabled
@@ -33,7 +49,7 @@ export async function chatCompletion(userText: string, settings: Settings, useSi
   // Optimized token limits: simple tasks need fewer tokens, complex tasks get more
   const maxTokens = (settings.fastMode && useSimpleModel) ? 40 : 100;
   
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetchWithTimeout("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -49,10 +65,15 @@ export async function chatCompletion(userText: string, settings: Settings, useSi
       temperature: 0, // Consistent, faster responses
       stream: false, // We'll implement streaming separately
     }),
-  });
+    signal: opts.signal,
+  }, opts.timeoutMs ?? 12000);
 
-  const data = await res.json();
-  if (!res.ok) throw new Error(data?.error?.message || "Chat request failed");
+  let data: any = null;
+  try { data = await res.json(); } catch { /* ignore */ }
+  if (!res.ok) {
+    const message = data?.error?.message || `Chat request failed (status ${res.status})`;
+    throw new Error(message);
+  }
   const reply = data.choices?.[0]?.message?.content?.trim();
   if (settings.debug) console.debug("Chat response", data);
   return reply || "";
@@ -63,14 +84,15 @@ export async function chatCompletionStreaming(
   userText: string, 
   settings: Settings, 
   useSimpleModel = false,
-  onChunk?: (chunk: string) => void
+  onChunk?: (chunk: string) => void,
+  opts: FetchOpts = {}
 ): Promise<string> {
   if (!settings.apiKey) throw new Error("OpenAI API key missing");
   
   const model = (settings.fastMode && useSimpleModel) ? "gpt-3.5-turbo-0125" : "gpt-4o-mini";
   const maxTokens = (settings.fastMode && useSimpleModel) ? 40 : 100;
   
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetchWithTimeout("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -86,11 +108,13 @@ export async function chatCompletionStreaming(
       temperature: 0,
       stream: true,
     }),
-  });
+    signal: opts.signal,
+  }, opts.timeoutMs ?? 20000);
 
   if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData?.error?.message || "Streaming chat request failed");
+    let errorData: any = null;
+    try { errorData = await res.json(); } catch { /* ignore */ }
+    throw new Error(errorData?.error?.message || `Streaming chat request failed (status ${res.status})`);
   }
 
   const reader = res.body?.getReader();
@@ -138,7 +162,7 @@ export async function chatCompletionStreaming(
 
 export async function synthesizeSpeech(text: string, settings: Settings): Promise<ArrayBuffer> {
   if (!settings.apiKey) throw new Error("OpenAI API key missing");
-  const res = await fetch("https://api.openai.com/v1/audio/speech", {
+  const res = await fetchWithTimeout("https://api.openai.com/v1/audio/speech", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -150,11 +174,12 @@ export async function synthesizeSpeech(text: string, settings: Settings): Promis
       input: text,
       format: "mp3",
     }),
-  });
+  }, 15000);
 
   if (!res.ok) {
-    const data = await res.json();
-    throw new Error(data?.error?.message || "TTS failed");
+    let data: any = null;
+    try { data = await res.json(); } catch { /* ignore */ }
+    throw new Error(data?.error?.message || `TTS failed (status ${res.status})`);
   }
 
   const arrayBuf = await res.arrayBuffer();
