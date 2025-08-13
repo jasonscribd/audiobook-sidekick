@@ -30,8 +30,8 @@ export async function chatCompletion(userText: string, settings: Settings, useSi
   // Use fast model for simple tasks when enabled
   const model = (settings.fastMode && useSimpleModel) ? "gpt-3.5-turbo-0125" : "gpt-4o-mini";
   
-  // Constrained tokens for concise 1-2 sentence responses
-  const maxTokens = (settings.fastMode && useSimpleModel) ? 30 : 50;
+  // Sufficient tokens for 1-2 complete sentences (avg 15-20 tokens per sentence)
+  const maxTokens = (settings.fastMode && useSimpleModel) ? 60 : 80;
   
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -68,7 +68,7 @@ export async function chatCompletionStreaming(
   if (!settings.apiKey) throw new Error("OpenAI API key missing");
   
   const model = (settings.fastMode && useSimpleModel) ? "gpt-3.5-turbo-0125" : "gpt-4o-mini";
-  const maxTokens = (settings.fastMode && useSimpleModel) ? 30 : 50;
+  const maxTokens = (settings.fastMode && useSimpleModel) ? 60 : 80;
   
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
