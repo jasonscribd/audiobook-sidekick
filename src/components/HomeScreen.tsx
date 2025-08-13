@@ -8,8 +8,7 @@ import {
   AlignJustify,
   Bookmark,
   Timer,
-  Gauge,
-  Sparkles
+  Gauge
 } from "lucide-react";
 import SidekickPopup from "./SidekickPopup";
 
@@ -79,11 +78,17 @@ const HomeScreen: React.FC = () => {
             className="w-full bg-accent text-black font-semibold text-base rounded-[18px] shadow-accent-glow flex items-center justify-center space-x-2 transition-all duration-200 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg active:scale-[0.99] motion-reduce:active:scale-100"
             style={{ height: '56px', marginBottom: '14px' }}
           >
-            <Sparkles 
-              size={20} 
-              strokeWidth={1.75}
-              style={{ color: '#000000' }}
-            />
+            <svg 
+              width="20" 
+              height="20" 
+              viewBox="0 0 24 24" 
+              fill="#000000"
+              style={{ flexShrink: 0 }}
+            >
+              <path d="M12 0l1.09 3.09L16 2l-.91 3.09L18 6l-3.09.91L16 10l-3.09-.91L12 12l-1.09-3.09L8 10l.91-3.09L6 6l3.09-.91L8 2l3.09 1.09L12 0z"/>
+              <path d="M19.5 7.5l.55 1.55L22 8.5l-1.45.55L19.5 10.5l-.55-1.45L17.5 8.5l1.45-.55L19.5 7.5z"/>
+              <path d="M6.5 17.5l.55 1.55L9 18.5l-1.45.55L6.5 20.5l-.55-1.45L4.5 18.5l1.45-.55L6.5 17.5z"/>
+            </svg>
             <span>Ask me anything or make a note</span>
           </button>
 
