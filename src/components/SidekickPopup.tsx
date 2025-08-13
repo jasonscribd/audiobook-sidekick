@@ -254,7 +254,7 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 font-inter z-50 flex items-center justify-center"
+      className="fixed inset-0 bg-black bg-opacity-45 font-inter z-50 flex items-end"
       onClick={(e) => {
         if (e.target === e.currentTarget && !showHistory && !showSettings) {
           if (conversationState === 'idle') {
@@ -263,13 +263,25 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
         }
       }}
     >
-      {/* Overlay Container */}
-      <div className="w-full max-w-[430px] mx-4 bg-warm-gradient rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden"
-           onClick={(e) => e.stopPropagation()}>
-        <div className="px-6 pt-10 pb-8 h-full flex flex-col">
+      {/* Bottom Sheet Container */}
+      <div 
+        className="w-full bg-bge rounded-t-[24px] shadow-[0_-10px_40px_rgba(0,0,0,0.35)] max-h-[70vh] min-h-[420px] overflow-hidden border-t border-white border-opacity-5"
+        style={{
+          paddingBottom: 'max(env(safe-area-inset-bottom, 0px) + 12px, 12px)',
+          height: 'min(60vh, 640px)'
+        }}
+        onClick={(e) => e.stopPropagation()}
+        aria-modal="true"
+        role="dialog"
+      >
+        {/* Optional Handle */}
+        <div className="w-9 h-1 bg-white bg-opacity-20 rounded-full mx-auto mt-2 mb-2"></div>
+        
+        {/* Scrollable Content Container */}
+        <div className="h-full flex flex-col overflow-hidden px-6">
           
-          {/* Top Bar */}
-          <div className="h-12 flex items-center mb-6 px-6 -mx-6">
+          {/* Header Bar */}
+          <div className="h-12 flex items-center mb-6 flex-shrink-0">
             {/* Left spacer for centering */}
             <div className="w-[100px] flex-shrink-0"> {/* Width matches right icon group (44px + 12px + 44px) */}
             </div>
@@ -309,8 +321,9 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
             </div>
           </div>
 
-          {/* Content Area */}
-          <div className="flex-1 flex flex-col justify-center items-center text-center">
+          {/* Scrollable Body Content */}
+          <div className="flex-1 overflow-y-auto px-0">
+            <div className="flex flex-col items-center text-center pt-6">
             
             {/* Stars Animation */}
             {shouldShowStars() && (
@@ -450,14 +463,14 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
 
         {/* History Overlay */}
         {showHistory && (
-          <div className="absolute inset-0 bg-warm-gradient rounded-2xl">
+          <div className="absolute inset-0 bg-bge rounded-t-[24px]">
             <HistoryDrawer onClose={() => setShowHistory(false)} />
           </div>
         )}
 
         {/* Settings Overlay */}
         {showSettings && (
-          <div className="absolute inset-0 bg-warm-gradient rounded-2xl">
+          <div className="absolute inset-0 bg-bge rounded-t-[24px]">
             <SettingsPane onClose={() => setShowSettings(false)} />
           </div>
         )}
