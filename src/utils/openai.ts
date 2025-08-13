@@ -1,4 +1,44 @@
-import { Settings } from "../context/SidekickContext";
+import { Settings, BookContext } from "../context/SidekickContext";
+
+// Helper function to trim context if too large
+function trimBookContext(markdown: string, maxChars: number = 10000): string {
+  if (markdown.length <= maxChars) return markdown;
+  
+  // Try to find a good breaking point (end of a section or paragraph)
+  const trimmed = markdown.substring(0, maxChars);
+  const lastDoubleNewline = trimmed.lastIndexOf('\n\n');
+  const lastSingleNewline = trimmed.lastIndexOf('\n');
+  const lastPeriod = trimmed.lastIndexOf('.');
+  
+  // Use the best breaking point we can find
+  const breakPoint = lastDoubleNewline > maxChars * 0.8 ? lastDoubleNewline :
+                     lastSingleNewline > maxChars * 0.9 ? lastSingleNewline :
+                     lastPeriod > maxChars * 0.9 ? lastPeriod + 1 : maxChars;
+  
+  return trimmed.substring(0, breakPoint) + '\n\n[Context truncated for length]';
+}
+
+// Helper function to build messages with optional book context
+function buildMessages(settings: Settings, userText: string, bookContext?: BookContext | null): Array<{role: string, content: string}> {
+  const messages = [
+    { role: "system", content: settings.systemPrompt }
+  ];
+
+  // Add book context if available and enabled
+  if (settings.useBookContext && bookContext?.bookContextMarkdown?.trim()) {
+    const trimmedContext = trimBookContext(bookContext.bookContextMarkdown);
+    const contextMessage = `BOOK CONTEXT (for ${settings.currentBookTitle}):
+
+Use the following book context as your primary source. If the answer isn't supported by this context, say you're not sure. Be concise (1–2 sentences).
+
+${trimmedContext}`;
+    
+    messages.push({ role: "system", content: contextMessage });
+  }
+
+  messages.push({ role: "user", content: userText });
+  return messages;
+}
 
 export async function transcribeAudio(blob: Blob, settings: Settings): Promise<string> {
   if (!settings.apiKey) throw new Error("OpenAI API key missing in Settings");
@@ -24,7 +64,7 @@ export async function transcribeAudio(blob: Blob, settings: Settings): Promise<s
   return data.text as string;
 }
 
-export async function chatCompletion(userText: string, settings: Settings, useSimpleModel = false): Promise<string> {
+export async function chatCompletion(userText: string, settings: Settings, useSimpleModel = false, bookContext?: BookContext | null): Promise<string> {
   if (!settings.apiKey) throw new Error("OpenAI API key missing");
   
   // Use fast model for simple tasks when enabled
@@ -41,10 +81,7 @@ export async function chatCompletion(userText: string, settings: Settings, useSi
     },
     body: JSON.stringify({
       model,
-      messages: [
-        { role: "system", content: settings.systemPrompt },
-        { role: "user", content: userText },
-      ],
+      messages: buildMessages(settings, userText, bookContext),
       max_tokens: maxTokens,
       temperature: 0, // Consistent, faster responses
       stream: false, // We'll implement streaming separately
@@ -63,7 +100,8 @@ export async function chatCompletionStreaming(
   userText: string, 
   settings: Settings, 
   useSimpleModel = false,
-  onChunk?: (chunk: string) => void
+  onChunk?: (chunk: string) => void,
+  bookContext?: BookContext | null
 ): Promise<string> {
   if (!settings.apiKey) throw new Error("OpenAI API key missing");
   
@@ -78,10 +116,7 @@ export async function chatCompletionStreaming(
     },
     body: JSON.stringify({
       model,
-      messages: [
-        { role: "system", content: settings.systemPrompt },
-        { role: "user", content: userText },
-      ],
+      messages: buildMessages(settings, userText, bookContext),
       max_tokens: maxTokens,
       temperature: 0,
       stream: true,
