@@ -128,7 +128,8 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
           try {
             payload = await chatCompletion(
               `Please correct punctuation and make very light edits for clarity while keeping the original words and order as much as possible. Return only the corrected text.\n\n${payload}`,
-              settings
+              settings,
+              true // Use simple model for text correction - it's a simple task
             );
           } catch (e) {
             console.error("Note edit failed", e);
@@ -152,8 +153,10 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
           }
 
           try {
+            // Use simple model for define/fact queries for speed and cost optimization
+            const useSimpleModel = intent === "define" || intent === "fact";
             // Simulate streaming by chunking the response
-            const response = await chatCompletion(prompt, settings);
+            const response = await chatCompletion(prompt, settings, useSimpleModel);
             const words = response.split(' ');
             
             for (let i = 0; i < words.length; i++) {
