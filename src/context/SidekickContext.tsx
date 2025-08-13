@@ -29,7 +29,7 @@ export const SidekickContext = createContext<SidekickContextValue>({} as Sidekic
 export function SidekickProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useLocalStorage<Settings>("settings", {
     apiKey: "",
-    systemPrompt: "You are a concise audiobook sidekick.",
+    systemPrompt: "You are a concise audiobook sidekick. Always respond in exactly 1-2 complete sentences. Never use incomplete sentences, bullet points, or lists. Be helpful but brief.",
     voiceId: "alloy",
     debug: false,
     silent: false,
