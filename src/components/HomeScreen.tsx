@@ -46,7 +46,9 @@ const HomeScreen: React.FC = () => {
           aria-label="Ask me anything or make a note"
           className="w-full max-w-[560px] h-14 bg-accent text-black font-semibold text-base rounded-[17px] shadow-accent-glow flex items-center justify-center space-x-2 transition-all duration-200 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg active:scale-[0.99] motion-reduce:active:scale-100 mb-4"
         >
-          <span className="text-lg text-black">✨</span>
+          <svg className="w-5 h-5" fill="#000000" viewBox="0 0 24 24">
+            <path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z"/>
+          </svg>
           <span>Ask me anything or make a note</span>
         </button>
 
