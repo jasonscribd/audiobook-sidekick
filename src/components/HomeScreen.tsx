@@ -32,8 +32,9 @@ const HomeScreen: React.FC = () => {
           {/* Album Artwork */}
         <div className="flex justify-center mt-5 mb-4">
           <img
-            src={`${(import.meta as any).env.BASE_URL}covers/Femalequixote.jpg`}
-            alt="The Female Quixote Vol. I by Charlotte Lennox"
+            src={`${(import.meta as any).env.BASE_URL}covers/
+            treasure_island_1.jpg`}
+            alt="Treasure Island by Robert Louis Stevenson"
             className="w-[84vw] max-w-[340px] aspect-square object-cover rounded-[21px] shadow-img-soft"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
