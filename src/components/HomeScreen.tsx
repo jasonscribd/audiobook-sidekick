@@ -49,6 +49,7 @@ const HomeScreen: React.FC = () => {
 
   // Handle play/pause toggle
   const handlePlayToggle = () => {
+    console.log('Play button clicked, current status:', audioState.status);
     audioService.toggle();
   };
 
@@ -78,12 +79,20 @@ const HomeScreen: React.FC = () => {
     ? (audioState.currentTime / audioState.duration) * 100 
     : 0;
 
-  // Cleanup audio on unmount
+  // Initialize audio and cleanup on unmount
   useEffect(() => {
+    // Load the audio file when component mounts
+    audioService.load();
+    
     return () => {
       audioService.stop();
     };
   }, []);
+
+  // Debug logging to see what's happening with audio state
+  useEffect(() => {
+    console.log('Audio state changed:', audioState);
+  }, [audioState]);
 
   return (
     <>
@@ -227,6 +236,7 @@ const HomeScreen: React.FC = () => {
               aria-label={audioState.status === "playing" ? "Pause audiobook" : "Play audiobook"}
               aria-pressed={audioState.status === "playing"}
               style={{ color: 'rgba(237, 237, 237, 0.8)' }}
+              title={`Status: ${audioState.status}`} // Debug tooltip
             >
               {audioState.status === "playing" ? (
                 <Pause 
