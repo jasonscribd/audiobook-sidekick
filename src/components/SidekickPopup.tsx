@@ -458,6 +458,7 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
                 <span>{getButtonText()}</span>
               </button>
             )}
+            </div>
           </div>
         </div>
 
