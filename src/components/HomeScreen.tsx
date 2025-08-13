@@ -19,7 +19,7 @@ const HomeScreen: React.FC = () => {
     <>
       {/* Phone Viewport Container - Grid Layout */}
       <div 
-        className="grid grid-rows-[auto_1fr_auto] max-w-[430px] mx-auto font-inter relative"
+        className="grid grid-rows-[auto_1fr_auto] max-w-[430px] mx-auto font-inter relative bg-warm-gradient"
         style={{
           minHeight: '100vh',
           height: '100dvh'
@@ -27,13 +27,13 @@ const HomeScreen: React.FC = () => {
       >
         
         {/* Row 1: Main Content */}
-        <div className="px-6 pt-10" style={{ paddingBottom: 'calc(64px + env(safe-area-inset-bottom) + 20px)' }}>
+        <div className="px-6 pt-10" style={{ paddingLeft: '24px', paddingRight: '24px', paddingTop: '40px', paddingBottom: 'calc(56px + env(safe-area-inset-bottom) + 20px)' }}>
           {/* Album Artwork */}
-        <div className="flex justify-center mt-5 mb-4">
+        <div className="flex justify-center mb-4" style={{ marginTop: '20px' }}>
           <img
             src={`${(import.meta as any).env.BASE_URL}covers/treasure_island_1.jpg`}
             alt="Treasure Island by Robert Louis Stevenson"
-            className="w-[84vw] max-w-[340px] aspect-square object-cover rounded-[21px] shadow-img-soft"
+            className="w-[84vw] max-w-[340px] aspect-square object-cover rounded-[22px] shadow-img-soft"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='340' height='340' viewBox='0 0 340 340'%3E%3Crect width='340' height='340' fill='%233B3934'/%3E%3Ctext x='50%25' y='45%25' font-family='Inter' font-size='16' fill='%23EDEDED' text-anchor='middle'%3ETreasure Island%3C/text%3E%3Ctext x='50%25' y='65%25' font-family='Inter' font-size='12' fill='%23B9B9B9' text-anchor='middle'%3ERobert Louis Stevenson%3C/text%3E%3C/svg%3E";
@@ -42,7 +42,7 @@ const HomeScreen: React.FC = () => {
         </div>
 
         {/* Title */}
-        <h1 className="text-center text-text font-inter font-semibold text-[23px] leading-tight mb-4">
+        <h1 className="text-center text-text font-inter font-semibold text-[23px] leading-tight" style={{ marginBottom: '16px' }}>
           Treasure Island
         </h1>
 
@@ -50,25 +50,26 @@ const HomeScreen: React.FC = () => {
         <button
           onClick={() => setShowSidekick(true)}
           aria-label="Ask me anything or make a note"
-          className="w-full max-w-[560px] h-14 bg-accent text-black font-semibold text-base rounded-[17px] shadow-accent-glow flex items-center justify-center space-x-2 transition-all duration-200 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg active:scale-[0.99] motion-reduce:active:scale-100 mb-4"
+          className="w-full max-w-[560px] bg-accent text-black font-semibold text-base rounded-[18px] shadow-accent-glow flex items-center justify-center space-x-2 transition-all duration-200 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg active:scale-[0.99] motion-reduce:active:scale-100"
+          style={{ height: '56px', marginBottom: '14px' }}
         >
-          <span className="text-lg" style={{ color: '#000000', filter: 'grayscale(1) brightness(0)' }}>✨</span>
+          <span className="text-lg text-black">✨</span>
           <span>Ask me anything or make a note</span>
         </button>
 
         {/* Progress Bar */}
-        <div className="w-full mb-5">
-          <div className="relative w-full h-1 bg-track bg-opacity-60 rounded-full mb-2">
+        <div className="w-full" style={{ marginBottom: '20px' }}>
+          <div className="relative w-full bg-track bg-opacity-60 rounded-full mb-2" style={{ height: '4px' }}>
             <div className="h-full bg-accent rounded-full" style={{ width: '25%' }}></div>
             {/* Progress Knob */}
             <div 
-              className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-accent rounded-full"
-              style={{ left: 'calc(25% - 8px)' }}
+              className="absolute top-1/2 transform -translate-y-1/2 bg-accent rounded-full"
+              style={{ left: 'calc(25% - 8px)', width: '16px', height: '16px' }}
             ></div>
           </div>
           
           {/* Timestamps */}
-          <div className="flex justify-between items-center text-text-muted text-[13px] font-normal mt-2">
+          <div className="flex justify-between items-center text-[#B9B9B9] text-[13px] font-normal" style={{ marginTop: '8px' }}>
             <span>03:57</span>
             <span>5 min 48 sec left</span>
             <span>-09:45</span>
@@ -76,68 +77,79 @@ const HomeScreen: React.FC = () => {
         </div>
 
           {/* Transport Controls */}
-          <div className="flex items-center justify-center space-x-8 opacity-80 mb-6">
+          <div className="flex items-center justify-center space-x-8" style={{ marginBottom: '20px' }}>
           {/* Skip Back */}
           <button 
-            className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
+            className="w-11 h-11 flex items-center justify-center opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
             tabIndex={-1}
             aria-label="Skip back"
+            style={{ color: 'rgba(237, 237, 237, 0.8)' }}
           >
             <SkipBack 
-              size={29} 
+              size={30} 
               strokeWidth={1.75}
             />
           </button>
 
           {/* Rewind 30 */}
           <button 
-            className="w-11 h-11 flex flex-col items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
+            className="w-11 h-11 flex items-center justify-center relative opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
             tabIndex={-1}
             aria-label="Rewind 30 seconds"
+            style={{ color: 'rgba(237, 237, 237, 0.8)' }}
           >
             <RotateCcw 
-              size={29} 
+              size={30} 
               strokeWidth={1.75}
             />
-            <span className="text-xs font-bold mt-0.5">30</span>
+            {/* Circled 30 badge */}
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full border border-current flex items-center justify-center">
+              <span className="text-[12px] font-medium leading-none">30</span>
+            </div>
           </button>
 
           {/* Play Button */}
           <button 
-            className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
+            className="w-11 h-11 flex items-center justify-center opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
             tabIndex={-1}
             aria-label="Play"
+            style={{ color: 'rgba(237, 237, 237, 0.8)' }}
           >
             <Play 
-              size={32} 
+              size={30} 
               strokeWidth={1.75}
             />
           </button>
 
           {/* Forward 30 */}
           <button 
-            className="w-11 h-11 flex flex-col items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
+            className="w-11 h-11 flex items-center justify-center relative opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
             tabIndex={-1}
             aria-label="Forward 30 seconds"
+            style={{ color: 'rgba(237, 237, 237, 0.8)' }}
           >
             <RotateCw 
-              size={29} 
+              size={30} 
               strokeWidth={1.75}
             />
-            <span className="text-xs font-bold mt-0.5">30</span>
+            {/* Circled 30 badge */}
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full border border-current flex items-center justify-center">
+              <span className="text-[12px] font-medium leading-none">30</span>
+            </div>
           </button>
 
           {/* Skip Forward */}
           <button 
-            className="w-11 h-11 flex items-center justify-center text-text opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
+            className="w-11 h-11 flex items-center justify-center opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
             tabIndex={-1}
             aria-label="Skip forward"
+            style={{ color: 'rgba(237, 237, 237, 0.8)' }}
           >
             <SkipForward 
-              size={29} 
+              size={30} 
               strokeWidth={1.75}
             />
-                      </button>
+          </button>
           </div>
         </div>
 
@@ -145,60 +157,81 @@ const HomeScreen: React.FC = () => {
         <div className="min-h-0"></div>
 
         {/* Row 3: Bottom Navigation - Anchored to Bottom */}
-        <div 
-          className="w-full bg-bg border-t border-white border-opacity-[0.08] z-10 flex justify-between items-center px-6"
-          style={{
-            height: 'calc(64px + env(safe-area-inset-bottom))',
-            paddingBottom: 'env(safe-area-inset-bottom)'
-          }}
-        >
+        <div className="w-full z-10 flex flex-col items-center">
+          {/* Navigation Buttons */}
+          <div 
+            className="w-full flex justify-between items-center px-6"
+            style={{
+              paddingBottom: `calc(env(safe-area-inset-bottom) + 12px)`
+            }}
+          >
             <button 
               onClick={() => {/* Menu/Settings functionality */}}
-              className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-[#EDEDED] opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+              className="flex flex-col items-center justify-center space-y-1 opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+              style={{ width: '44px', height: '44px' }}
               aria-label="Menu"
             >
               <AlignJustify 
-                size={24} 
+                size={22} 
                 strokeWidth={1.75}
+                style={{ color: 'rgba(237, 237, 237, 0.8)' }}
               />
-              <span className="text-xs text-[#B9B9B9] font-inter">Menu</span>
+              <span className="text-[12px] text-[#B9B9B9] font-inter leading-none">Menu</span>
             </button>
             
             <button 
               onClick={() => {/* Bookmark functionality */}}
-              className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-[#EDEDED] opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+              className="flex flex-col items-center justify-center space-y-1 opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+              style={{ width: '44px', height: '44px' }}
               aria-label="Bookmark"
             >
               <Bookmark 
-                size={24} 
+                size={22} 
                 strokeWidth={1.75}
+                style={{ color: 'rgba(237, 237, 237, 0.8)' }}
               />
-              <span className="text-xs text-[#B9B9B9] font-inter">Bookmark</span>
+              <span className="text-[12px] text-[#B9B9B9] font-inter leading-none">Bookmark</span>
             </button>
             
             <button 
               onClick={() => {/* Timer functionality */}}
-              className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-[#EDEDED] opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+              className="flex flex-col items-center justify-center space-y-1 opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+              style={{ width: '44px', height: '44px' }}
               aria-label="Timer"
             >
               <Timer 
-                size={24} 
+                size={22} 
                 strokeWidth={1.75}
+                style={{ color: 'rgba(237, 237, 237, 0.8)' }}
               />
-              <span className="text-xs text-[#B9B9B9] font-inter">Timer</span>
+              <span className="text-[12px] text-[#B9B9B9] font-inter leading-none">Timer</span>
             </button>
             
             <button 
               onClick={() => {/* Speed functionality */}}
-              className="w-11 h-11 flex flex-col items-center justify-center space-y-0.5 text-[#EDEDED] opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+              className="flex flex-col items-center justify-center space-y-1 opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+              style={{ width: '44px', height: '44px' }}
               aria-label="Speed"
             >
               <Gauge 
-                size={24} 
+                size={22} 
                 strokeWidth={1.75}
+                style={{ color: 'rgba(237, 237, 237, 0.8)' }}
               />
-              <span className="text-xs text-[#B9B9B9] font-inter">Speed</span>
+              <span className="text-[12px] text-[#B9B9B9] font-inter leading-none">Speed</span>
             </button>
+          </div>
+          
+          {/* Home Indicator Pill */}
+          <div 
+            className="rounded-full mb-2"
+            style={{
+              width: '64px',
+              height: '4px',
+              backgroundColor: 'rgba(255, 255, 255, 0.4)',
+              marginBottom: `calc(env(safe-area-inset-bottom) + 8px)`
+            }}
+          ></div>
         </div>
       </div>
 
