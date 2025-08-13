@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { SidekickProvider } from "./context/SidekickContext";
+import { AudioProvider } from "./context/AudioContext";
 import HomeScreen from "./components/HomeScreen";
 
 // Phone shell components for desktop/mobile simulation
@@ -137,9 +138,11 @@ function AppContent() {
 export default function App() {
   return (
     <SidekickProvider>
-      <AppShell>
-        <AppContent />
-      </AppShell>
+      <AudioProvider>
+        <AppShell>
+          <AppContent />
+        </AppShell>
+      </AudioProvider>
     </SidekickProvider>
   );
 } 

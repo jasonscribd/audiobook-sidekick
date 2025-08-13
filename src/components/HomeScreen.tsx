@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   RotateCcw,
   RotateCw,
   Play,
+  Pause,
   SkipBack,
   SkipForward,
   AlignJustify,
@@ -11,9 +12,78 @@ import {
   Gauge
 } from "lucide-react";
 import SidekickPopup from "./SidekickPopup";
+import { useAudio } from "../context/AudioContext";
+import { audioService } from "../services/audioService";
 
 const HomeScreen: React.FC = () => {
   const [showSidekick, setShowSidekick] = useState(false);
+  const audioState = useAudio();
+
+  // Helper function to format time in MM:SS
+  const formatTime = (seconds: number): string => {
+    if (!seconds || !isFinite(seconds)) return "00:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Helper function to format remaining time
+  const formatRemainingTime = (current: number, duration: number): string => {
+    if (!duration || !isFinite(duration)) return "0 min left";
+    const remaining = duration - current;
+    const mins = Math.floor(remaining / 60);
+    const secs = Math.floor(remaining % 60);
+    
+    if (mins > 0) {
+      return `${mins} min ${secs} sec left`;
+    } else {
+      return `${secs} sec left`;
+    }
+  };
+
+  // Handle CTA click - stop audio before opening sidekick
+  const handleCTAClick = () => {
+    audioService.stop();
+    setShowSidekick(true);
+  };
+
+  // Handle play/pause toggle
+  const handlePlayToggle = () => {
+    audioService.toggle();
+  };
+
+  // Handle seek controls
+  const handleRewind30 = () => {
+    audioService.seek(audioState.currentTime - 30);
+  };
+
+  const handleForward30 = () => {
+    audioService.seek(audioState.currentTime + 30);
+  };
+
+  // Handle progress bar click/drag
+  const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!audioState.duration) return;
+    
+    const rect = event.currentTarget.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const percentage = clickX / rect.width;
+    const newTime = percentage * audioState.duration;
+    
+    audioService.seek(newTime);
+  };
+
+  // Calculate progress percentage
+  const progressPercentage = audioState.duration 
+    ? (audioState.currentTime / audioState.duration) * 100 
+    : 0;
+
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      audioService.stop();
+    };
+  }, []);
 
   return (
     <>
@@ -73,7 +143,7 @@ const HomeScreen: React.FC = () => {
         >
           {/* 1. CTA Button */}
           <button
-            onClick={() => setShowSidekick(true)}
+            onClick={handleCTAClick}
             aria-label="Ask me anything or make a note"
             className="w-full bg-accent text-black font-semibold text-base rounded-[18px] shadow-accent-glow flex items-center justify-center space-x-2 transition-all duration-200 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg active:scale-[0.99] motion-reduce:active:scale-100"
             style={{ height: '56px', marginBottom: '14px' }}
@@ -97,20 +167,24 @@ const HomeScreen: React.FC = () => {
 
           {/* 2. Progress Bar + Timestamps */}
           <div className="w-full" style={{ marginBottom: '18px' }}>
-            <div className="relative w-full bg-track bg-opacity-60 rounded-full mb-2" style={{ height: '4px' }}>
-              <div className="h-full bg-accent rounded-full" style={{ width: '25%' }}></div>
+            <div 
+              className="relative w-full bg-track bg-opacity-60 rounded-full mb-2 cursor-pointer" 
+              style={{ height: '4px' }}
+              onClick={handleProgressClick}
+            >
+              <div className="h-full bg-accent rounded-full" style={{ width: `${progressPercentage}%` }}></div>
               {/* Progress Knob */}
               <div 
                 className="absolute top-1/2 transform -translate-y-1/2 bg-accent rounded-full"
-                style={{ left: 'calc(25% - 8px)', width: '16px', height: '16px' }}
+                style={{ left: `calc(${progressPercentage}% - 8px)`, width: '16px', height: '16px' }}
               ></div>
             </div>
             
             {/* Timestamps */}
             <div className="flex justify-between items-center text-[#B9B9B9] text-[13px] font-normal" style={{ marginTop: '8px' }}>
-              <span>03:57</span>
-              <span>5 min 48 sec left</span>
-              <span>-09:45</span>
+              <span>{formatTime(audioState.currentTime)}</span>
+              <span>{formatRemainingTime(audioState.currentTime, audioState.duration)}</span>
+              <span>-{formatTime(audioState.duration - audioState.currentTime)}</span>
             </div>
           </div>
 
@@ -118,10 +192,10 @@ const HomeScreen: React.FC = () => {
           <div className="flex items-center justify-center space-x-8" style={{ marginBottom: '18px' }}>
             {/* Skip Back */}
             <button 
-              className="w-11 h-11 flex items-center justify-center opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
-              tabIndex={-1}
+              className="w-11 h-11 flex items-center justify-center opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity" 
               aria-label="Skip back"
               style={{ color: 'rgba(237, 237, 237, 0.8)' }}
+              disabled
             >
               <SkipBack 
                 size={30} 
@@ -131,8 +205,8 @@ const HomeScreen: React.FC = () => {
 
             {/* Rewind 30 */}
             <button 
-              className="w-11 h-11 flex items-center justify-center relative opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
-              tabIndex={-1}
+              className="w-11 h-11 flex items-center justify-center relative opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity" 
+              onClick={handleRewind30}
               aria-label="Rewind 30 seconds"
               style={{ color: 'rgba(237, 237, 237, 0.8)' }}
             >
@@ -146,23 +220,31 @@ const HomeScreen: React.FC = () => {
               </div>
             </button>
 
-            {/* Play Button */}
+            {/* Play/Pause Button */}
             <button 
-              className="w-11 h-11 flex items-center justify-center opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
-              tabIndex={-1}
-              aria-label="Play"
+              className="w-11 h-11 flex items-center justify-center opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity" 
+              onClick={handlePlayToggle}
+              aria-label={audioState.status === "playing" ? "Pause audiobook" : "Play audiobook"}
+              aria-pressed={audioState.status === "playing"}
               style={{ color: 'rgba(237, 237, 237, 0.8)' }}
             >
-              <Play 
-                size={30} 
-                strokeWidth={1.75}
-              />
+              {audioState.status === "playing" ? (
+                <Pause 
+                  size={30} 
+                  strokeWidth={1.75}
+                />
+              ) : (
+                <Play 
+                  size={30} 
+                  strokeWidth={1.75}
+                />
+              )}
             </button>
 
             {/* Forward 30 */}
             <button 
-              className="w-11 h-11 flex items-center justify-center relative opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
-              tabIndex={-1}
+              className="w-11 h-11 flex items-center justify-center relative opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity" 
+              onClick={handleForward30}
               aria-label="Forward 30 seconds"
               style={{ color: 'rgba(237, 237, 237, 0.8)' }}
             >
@@ -178,10 +260,10 @@ const HomeScreen: React.FC = () => {
 
             {/* Skip Forward */}
             <button 
-              className="w-11 h-11 flex items-center justify-center opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity pointer-events-none" 
-              tabIndex={-1}
+              className="w-11 h-11 flex items-center justify-center opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity" 
               aria-label="Skip forward"
               style={{ color: 'rgba(237, 237, 237, 0.8)' }}
+              disabled
             >
               <SkipForward 
                 size={30} 
@@ -189,6 +271,13 @@ const HomeScreen: React.FC = () => {
               />
             </button>
           </div>
+
+          {/* Error Message */}
+          {audioState.error && (
+            <div className="text-center text-red-400 text-sm mb-3 px-4">
+              {audioState.error}
+            </div>
+          )}
 
           {/* 4. Bottom Navigation */}
           <div className="w-full flex justify-between items-center" style={{ marginBottom: '10px' }}>

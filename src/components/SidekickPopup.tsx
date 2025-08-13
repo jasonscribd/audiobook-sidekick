@@ -7,6 +7,7 @@ import { useRecorder } from "../hooks/useRecorder";
 import { transcribeAudio } from "../utils/openai";
 import { parseIntent } from "../utils/intent";
 import { chatCompletion, synthesizeSpeech, preWarmConnections } from "../utils/openai";
+import { audioService } from "../services/audioService";
 
 interface SidekickPopupProps {
   onClose: () => void;
@@ -27,6 +28,11 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
   const { addHistory, settings } = useContext(SidekickContext);
   const responseRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Stop audio playback when sidekick opens
+  useEffect(() => {
+    audioService.stop();
+  }, []);
 
   // Pre-warm API connections when API key is available
   useEffect(() => {
