@@ -19,12 +19,13 @@ const HomeScreen: React.FC = () => {
     <>
       {/* Phone Viewport Container - Grid Layout */}
       <div 
-        className="grid grid-rows-[auto_1fr_auto] max-w-[430px] mx-auto font-inter relative overflow-hidden"
+        className="fixed inset-0 max-w-[430px] mx-auto font-inter"
         style={{
-          minHeight: '100dvh',
-          height: '-webkit-fill-available'
+          left: '50%',
+          transform: 'translateX(-50%)'
         }}
       >
+        <div className="grid grid-rows-[auto_1fr_auto] h-full w-full relative overflow-hidden">
         
         {/* Row 1: Main Content */}
         <div className="px-6 pt-10" style={{ paddingBottom: 'calc(64px + env(safe-area-inset-bottom) + 20px)' }}>
@@ -199,6 +200,7 @@ const HomeScreen: React.FC = () => {
               />
               <span className="text-xs text-[#B9B9B9] font-inter">Speed</span>
             </button>
+        </div>
         </div>
       </div>
 
