@@ -380,73 +380,21 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
           <p>First pair: {conversationPairs[0] ? `User: ${conversationPairs[0].user?.content?.slice(0, 30) || 'None'}, Response: ${conversationPairs[0].response?.content?.slice(0, 30) || 'None'}` : 'None'}</p>
         </div>
         
-        {/* Force display of pairs even if length seems wrong */}
-        {conversationPairs && Array.isArray(conversationPairs) && conversationPairs.map((pair, index) => {
-          return (
-            <div key={pair.user?.id || pair.response?.id || index} className="mb-6 border border-yellow-500 p-2">
-              <div className="text-text text-[16px] leading-[150%]">
-                {/* User question in bold italics with asterisks */}
-                {pair.user && (
-                  <span className={`font-bold italic ${pair.user.content === '[Question not found]' ? 'text-red-400' : 'text-accent-warm'}`}>
-                    *{pair.user.content}*
-                  </span>
-                )}
-                {/* Space between question and answer */}
-                {pair.response && <span> </span>}
-                {/* AI response in normal text */}
-                {pair.response && (
-                  <span>
-                    {pair.response.content.split('\n').map((paragraph, i) => (
-                      <React.Fragment key={i}>
-                        {i > 0 && <><br /><br /></>}
-                        {paragraph}
-                      </React.Fragment>
-                    ))}
-                  </span>
-                )}
-              </div>
-              
-              {/* Meta Row */}
-              {pair.response && pair.response.id !== 'streaming' && (
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-text-muted text-[12px] font-inter">
-                    {formatTimestamp(pair.response.timestamp)}
-                  </span>
-                  <div className="flex items-center space-x-3">
-                    {/* External Link Icon */}
-                    <button
-                      aria-label="Open externally"
-                      className="opacity-80 hover:opacity-100 focus:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg rounded"
-                      onClick={() => {/* External link functionality */}}
-                    >
-                      <ExternalLink 
-                        size={21} 
-                        strokeWidth={1.75}
-                        style={{ color: 'rgba(237, 237, 237, 0.8)' }}
-                      />
-                    </button>
-                    
-                    {/* Speaker Icon */}
-                    <button
-                      aria-label="Play/Stop TTS"
-                      disabled={settings.silent}
-                      className={`opacity-80 hover:opacity-100 focus:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg rounded ${
-                        settings.silent ? 'cursor-not-allowed opacity-40' : ''
-                      }`}
-                      onClick={() => {/* TTS playback for this message */}}
-                    >
-                      <Volume2 
-                        size={21} 
-                        strokeWidth={1.75}
-                        style={{ color: 'rgba(237, 237, 237, 0.8)' }}
-                      />
-                    </button>
-                  </div>
-                </div>
-              )}
+        {/* Ultra simple display test */}
+        <div className="text-white text-lg mb-4">
+          Total pairs to render: {conversationPairs.length}
+        </div>
+        
+        {conversationPairs.map((pair, index) => (
+          <div key={index} className="mb-4 p-3 border border-green-500 bg-gray-800">
+            <div className="text-red-400 font-bold">
+              *{pair.user?.content || '[No user content]'}*
             </div>
-          );
-        })}
+            <div className="text-white mt-2">
+              {pair.response?.content || '[No response content]'}
+            </div>
+          </div>
+        ))}
 
         
         {/* Display current streaming pair if any */}
