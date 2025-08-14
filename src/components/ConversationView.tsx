@@ -345,7 +345,28 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
 
       {/* Messages List */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
+        {/* Debug info - temporarily show what we have */}
+        {history.length === 0 && (
+          <div className="text-center text-text-muted mt-8">
+            <p className="text-sm mb-2">No conversation history yet.</p>
+            <p className="text-xs">Start a conversation by asking a question below!</p>
+          </div>
+        )}
+        
+        {history.length > 0 && conversationPairs.length === 0 && (
+          <div className="text-center text-text-muted mt-8">
+            <p className="text-sm mb-2">History found ({history.length} items) but no conversation pairs created.</p>
+            <p className="text-xs">Debug: {JSON.stringify(history.slice(0, 2))}</p>
+          </div>
+        )}
+        
         {/* Display conversation pairs (show all pairs, including those without responses) */}
+        {conversationPairs.length > 0 && (
+          <div className="text-center text-text-muted mb-4">
+            <p className="text-xs">Found {conversationPairs.length} conversation pair(s)</p>
+          </div>
+        )}
+        
         {conversationPairs.map((pair, index) => {
           
           return (
