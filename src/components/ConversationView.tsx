@@ -30,9 +30,27 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
   const abortControllerRef = useRef<AbortController | null>(null);
   const textInputRef = useRef<HTMLInputElement>(null);
 
-  // Get conversation history (user/sidekick pairs only, filter out standalone notes)
-  const conversationHistory = React.useMemo(() => {
-    return history.filter(item => item.role === 'user' || item.role === 'sidekick');
+  // Get conversation history and group user questions with AI responses
+  const conversationPairs = React.useMemo(() => {
+    const filtered = history.filter(item => item.role === 'user' || item.role === 'sidekick');
+    const pairs: Array<{ user: HistoryItem; response?: HistoryItem }> = [];
+    
+    for (let i = 0; i < filtered.length; i++) {
+      if (filtered[i].role === 'user') {
+        const userMessage = filtered[i];
+        const nextMessage = filtered[i + 1];
+        const responseMessage = nextMessage?.role === 'sidekick' ? nextMessage : undefined;
+        
+        pairs.push({ user: userMessage, response: responseMessage });
+        
+        // Skip the response message in the next iteration if we found it
+        if (responseMessage) {
+          i++; // Skip the response message
+        }
+      }
+    }
+    
+    return pairs;
   }, [history]);
 
   // Format timestamp for display
@@ -53,7 +71,7 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [conversationHistory, streamingText]);
+  }, [conversationPairs, streamingText]);
 
   // Handle "Read answers" toggle
   const handleToggleReadAnswers = () => {
@@ -212,18 +230,21 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
     }
   };
 
-  // Get current streaming sidekick message if any
-  const currentStreamingMessage = conversationState === 'streaming' && streamingText ? {
-    id: 'streaming',
-    timestamp: new Date().toLocaleTimeString(),
-    role: 'sidekick' as const,
-    content: streamingText
+  // Handle current streaming response
+  const currentStreamingPair = conversationState === 'streaming' && streamingText ? {
+    user: conversationPairs[conversationPairs.length - 1]?.user || {
+      id: 'temp-user',
+      timestamp: new Date().toLocaleTimeString(),
+      role: 'user' as const,
+      content: ''
+    },
+    response: {
+      id: 'streaming',
+      timestamp: new Date().toLocaleTimeString(),
+      role: 'sidekick' as const,
+      content: streamingText
+    }
   } : null;
-
-  // Combine history with current streaming message for display
-  const displayMessages = currentStreamingMessage 
-    ? [...conversationHistory, currentStreamingMessage]
-    : conversationHistory;
 
   return (
     <div 
@@ -247,7 +268,7 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
 
         {/* Center: Title */}
         <div className="flex-1 flex justify-center">
-          <h1 className="text-text text-[17px] font-semibold tracking-[0.01em]">
+          <h1 className="text-text text-[17px] font-semibold tracking-[0.01em] whitespace-nowrap">
             Audiobook Sidekick
           </h1>
         </div>
@@ -324,80 +345,96 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
 
       {/* Messages List */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
-        {displayMessages.map((message, index) => {
-          const isUser = message.role === 'user';
-          const isStreaming = message.id === 'streaming';
+        {/* Display completed conversation pairs */}
+        {conversationPairs.map((pair, index) => {
+          // Only show pairs that have both user question and response (except for the last one during streaming)
+          if (!pair.response && !(conversationState === 'streaming' && index === conversationPairs.length - 1)) {
+            return null;
+          }
           
-          if (isUser) {
-            return (
-              <div key={message.id} className="mb-4">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-[16px] font-bold leading-tight text-accent-warm">
-                    {message.content}
+          return (
+            <div key={pair.user.id} className="mb-6">
+              <div className="text-text text-[16px] leading-[150%]">
+                {/* User question in bold italics with asterisks */}
+                <span className="font-bold italic text-accent-warm">
+                  *{pair.user.content}*
+                </span>
+                {/* Space between question and answer */}
+                {pair.response && <span> </span>}
+                {/* AI response in normal text */}
+                {pair.response && (
+                  <span>
+                    {pair.response.content.split('\n').map((paragraph, i) => (
+                      <React.Fragment key={i}>
+                        {i > 0 && <br /><br />}
+                        {paragraph}
+                      </React.Fragment>
+                    ))}
                   </span>
-                  <span className="text-text-muted text-[12px] font-inter ml-4 flex-shrink-0">
-                    {formatTimestamp(message.timestamp)}
-                  </span>
-                </div>
-              </div>
-            );
-          } else {
-            return (
-              <div key={message.id} className="mb-5">
-                {/* Sidekick Answer */}
-                <div className="text-text text-[16px] leading-[150%] mb-4">
-                  {message.content.split('\n').map((paragraph, i) => (
-                    <p key={i} className={i > 0 ? 'mt-3' : ''}>
-                      {paragraph}
-                    </p>
-                  ))}
-                  {isStreaming && (
-                    <span className="animate-pulse motion-reduce:animate-none">|</span>
-                  )}
-                </div>
-                
-                {/* Meta Row */}
-                {!isStreaming && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-text-muted text-[12px] font-inter">
-                      {formatTimestamp(message.timestamp)}
-                    </span>
-                    <div className="flex items-center space-x-3">
-                      {/* External Link Icon */}
-                      <button
-                        aria-label="Open externally"
-                        className="opacity-80 hover:opacity-100 focus:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg rounded"
-                        onClick={() => {/* External link functionality */}}
-                      >
-                        <ExternalLink 
-                          size={21} 
-                          strokeWidth={1.75}
-                          style={{ color: 'rgba(237, 237, 237, 0.8)' }}
-                        />
-                      </button>
-                      
-                      {/* Speaker Icon */}
-                      <button
-                        aria-label="Play/Stop TTS"
-                        disabled={settings.silent}
-                        className={`opacity-80 hover:opacity-100 focus:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg rounded ${
-                          settings.silent ? 'cursor-not-allowed opacity-40' : ''
-                        }`}
-                        onClick={() => {/* TTS playback for this message */}}
-                      >
-                        <Volume2 
-                          size={21} 
-                          strokeWidth={1.75}
-                          style={{ color: 'rgba(237, 237, 237, 0.8)' }}
-                        />
-                      </button>
-                    </div>
-                  </div>
                 )}
               </div>
-            );
-          }
+              
+              {/* Meta Row */}
+              {pair.response && pair.response.id !== 'streaming' && (
+                <div className="flex items-center justify-between mt-3">
+                  <span className="text-text-muted text-[12px] font-inter">
+                    {formatTimestamp(pair.response.timestamp)}
+                  </span>
+                  <div className="flex items-center space-x-3">
+                    {/* External Link Icon */}
+                    <button
+                      aria-label="Open externally"
+                      className="opacity-80 hover:opacity-100 focus:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg rounded"
+                      onClick={() => {/* External link functionality */}}
+                    >
+                      <ExternalLink 
+                        size={21} 
+                        strokeWidth={1.75}
+                        style={{ color: 'rgba(237, 237, 237, 0.8)' }}
+                      />
+                    </button>
+                    
+                    {/* Speaker Icon */}
+                    <button
+                      aria-label="Play/Stop TTS"
+                      disabled={settings.silent}
+                      className={`opacity-80 hover:opacity-100 focus:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg rounded ${
+                        settings.silent ? 'cursor-not-allowed opacity-40' : ''
+                      }`}
+                      onClick={() => {/* TTS playback for this message */}}
+                    >
+                      <Volume2 
+                        size={21} 
+                        strokeWidth={1.75}
+                        style={{ color: 'rgba(237, 237, 237, 0.8)' }}
+                      />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
         })}
+        
+        {/* Display current streaming pair if any */}
+        {currentStreamingPair && (
+          <div key="streaming-pair" className="mb-6">
+            <div className="text-text text-[16px] leading-[150%]">
+              {/* User question in bold italics with asterisks */}
+              <span className="font-bold italic text-accent-warm">
+                *{currentStreamingPair.user.content}*
+              </span>
+              {/* Space between question and answer */}
+              <span> </span>
+              {/* Streaming AI response */}
+              <span>
+                {currentStreamingPair.response.content}
+                <span className="animate-pulse motion-reduce:animate-none">|</span>
+              </span>
+            </div>
+          </div>
+        )}
+        
         <div ref={messagesEndRef} />
       </div>
 
