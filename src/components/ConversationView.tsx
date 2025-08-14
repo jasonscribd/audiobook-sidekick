@@ -366,7 +366,7 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
                   <span>
                     {pair.response.content.split('\n').map((paragraph, i) => (
                       <React.Fragment key={i}>
-                        {i > 0 && <br /><br />}
+                        {i > 0 && <><br /><br /></>}
                         {paragraph}
                       </React.Fragment>
                     ))}
