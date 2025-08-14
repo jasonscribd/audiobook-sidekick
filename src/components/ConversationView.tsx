@@ -33,7 +33,7 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
   // Get conversation history and group user questions with AI responses
   const conversationPairs = React.useMemo(() => {
     const filtered = history.filter(item => item.role === 'user' || item.role === 'sidekick');
-    const pairs: Array<{ user: HistoryItem; response?: HistoryItem }> = [];
+    const pairs: Array<{ user?: HistoryItem; response?: HistoryItem }> = [];
     
     for (let i = 0; i < filtered.length; i++) {
       if (filtered[i].role === 'user') {
@@ -46,6 +46,22 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
         // Skip the response message in the next iteration if we found it
         if (responseMessage) {
           i++; // Skip the response message
+        }
+      } else if (filtered[i].role === 'sidekick') {
+        // Handle orphaned sidekick responses (responses without user questions)
+        const prevMessage = filtered[i - 1];
+        const isOrphan = !prevMessage || prevMessage.role !== 'user';
+        
+        if (isOrphan) {
+          pairs.push({ 
+            user: {
+              id: `orphan-user-${filtered[i].id}`,
+              timestamp: filtered[i].timestamp,
+              role: 'user',
+              content: '[Question not found]'
+            },
+            response: filtered[i] 
+          });
         }
       }
     }
@@ -356,12 +372,14 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
         {conversationPairs.map((pair, index) => {
           
           return (
-            <div key={pair.user.id} className="mb-6">
+            <div key={pair.user?.id || pair.response?.id || index} className="mb-6">
               <div className="text-text text-[16px] leading-[150%]">
                 {/* User question in bold italics with asterisks */}
-                <span className="font-bold italic text-accent-warm">
-                  *{pair.user.content}*
-                </span>
+                {pair.user && (
+                  <span className={`font-bold italic ${pair.user.content === '[Question not found]' ? 'text-red-400' : 'text-accent-warm'}`}>
+                    *{pair.user.content}*
+                  </span>
+                )}
                 {/* Space between question and answer */}
                 {pair.response && <span> </span>}
                 {/* AI response in normal text */}
