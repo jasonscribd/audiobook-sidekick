@@ -15,6 +15,7 @@ const config: Config = {
         'text': '#EDEDED',
         'text-muted': '#B9B9B9',
         'accent': '#F2FD53',
+        'accent-warm': '#F3A46B',
         'track': '#4A4946',
         // Legacy colors (keeping for compatibility)
         palette1: "#f1fb52",

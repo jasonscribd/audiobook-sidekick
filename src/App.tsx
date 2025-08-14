@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { SidekickProvider } from "./context/SidekickContext";
 import { AudioProvider } from "./context/AudioContext";
 import HomeScreen from "./components/HomeScreen";
+import ConversationView from "./components/ConversationView";
+
+// Simple routing state
+type Route = 'home' | 'conversation';
 
 // Phone shell components for desktop/mobile simulation
 const PhoneViewport: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -132,7 +136,41 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 function AppContent() {
-  return <HomeScreen />;
+  const [currentRoute, setCurrentRoute] = useState<Route>('home');
+
+  // Listen for route changes via URL
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      if (path.includes('conversation')) {
+        setCurrentRoute('conversation');
+      } else {
+        setCurrentRoute('home');
+      }
+    };
+
+    // Set initial route
+    handlePopState();
+    
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigateToConversation = () => {
+    setCurrentRoute('conversation');
+    window.history.pushState({}, '', '/conversation');
+  };
+
+  const navigateToHome = () => {
+    setCurrentRoute('home');
+    window.history.pushState({}, '', '/');
+  };
+
+  if (currentRoute === 'conversation') {
+    return <ConversationView onNavigateBack={navigateToHome} />;
+  }
+
+  return <HomeScreen onNavigateToConversation={navigateToConversation} />;
 }
 
 export default function App() {

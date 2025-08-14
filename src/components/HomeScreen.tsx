@@ -15,7 +15,11 @@ import SidekickPopup from "./SidekickPopup";
 import { useAudio } from "../context/AudioContext";
 import { audioService } from "../services/audioService";
 
-const HomeScreen: React.FC = () => {
+interface HomeScreenProps {
+  onNavigateToConversation: () => void;
+}
+
+const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToConversation }) => {
   const [showSidekick, setShowSidekick] = useState(false);
   const audioState = useAudio();
 
@@ -371,7 +375,10 @@ const HomeScreen: React.FC = () => {
 
         {/* Sidekick Popup - positioned within phone viewport */}
         {showSidekick && (
-          <SidekickPopup onClose={() => setShowSidekick(false)} />
+          <SidekickPopup 
+            onClose={() => setShowSidekick(false)} 
+            onNavigateToConversation={onNavigateToConversation}
+          />
         )}
       </div>
     </>

@@ -11,11 +11,12 @@ import { audioService } from "../services/audioService";
 
 interface SidekickPopupProps {
   onClose: () => void;
+  onNavigateToConversation: () => void;
 }
 
 type ConversationState = 'idle' | 'listening' | 'transcribing' | 'streaming' | 'complete' | 'error';
 
-const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
+const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose, onNavigateToConversation }) => {
   const [conversationState, setConversationState] = useState<ConversationState>('idle');
   const [showHistory, setShowHistory] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -203,6 +204,11 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose }) => {
               role: "sidekick",
               content: response,
             });
+
+            // Navigate to conversation view after a brief delay
+            setTimeout(() => {
+              onNavigateToConversation();
+            }, 1500);
 
           } catch (error: any) {
             if (!abortControllerRef.current?.signal.aborted) {
