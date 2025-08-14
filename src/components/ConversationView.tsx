@@ -236,12 +236,15 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
     >
       {/* Header */}
       <div 
-        className="h-12 flex items-center px-6"
+        className="h-12 flex items-center justify-between px-6"
         style={{ 
           paddingTop: `calc(env(safe-area-inset-top) + 8px)`,
           paddingBottom: '8px'
         }}
       >
+        {/* Left: Empty space for balance */}
+        <div className="w-[88px]" />
+
         {/* Center: Title */}
         <div className="flex-1 flex justify-center">
           <h1 className="text-text text-[17px] font-semibold tracking-[0.01em]">
@@ -250,7 +253,7 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
         </div>
 
         {/* Right: Icons */}
-        <div className="flex items-center space-x-3 absolute right-6">
+        <div className="flex items-center space-x-3 w-[88px] justify-end">
           {/* History Icon */}
           <button
             onClick={() => setShowHistory(true)}
@@ -329,7 +332,7 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
             return (
               <div key={message.id} className="mb-4">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[16px] font-medium leading-tight text-accent-warm">
+                  <span className="text-[16px] font-bold leading-tight text-accent-warm">
                     {message.content}
                   </span>
                   <span className="text-text-muted text-[12px] font-inter ml-4 flex-shrink-0">
