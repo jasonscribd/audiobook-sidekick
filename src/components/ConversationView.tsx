@@ -35,6 +35,9 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
     const filtered = history.filter(item => item.role === 'user' || item.role === 'sidekick');
     const pairs: Array<{ user: HistoryItem; response?: HistoryItem }> = [];
     
+    console.log('ConversationView - Raw history:', history);
+    console.log('ConversationView - Filtered history:', filtered);
+    
     for (let i = 0; i < filtered.length; i++) {
       if (filtered[i].role === 'user') {
         const userMessage = filtered[i];
@@ -50,6 +53,7 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
       }
     }
     
+    console.log('ConversationView - Created pairs:', pairs);
     return pairs;
   }, [history]);
 
@@ -345,12 +349,8 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
 
       {/* Messages List */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
-        {/* Display completed conversation pairs */}
+        {/* Display conversation pairs (show all pairs, including those without responses) */}
         {conversationPairs.map((pair, index) => {
-          // Only show pairs that have both user question and response (except for the last one during streaming)
-          if (!pair.response && !(conversationState === 'streaming' && index === conversationPairs.length - 1)) {
-            return null;
-          }
           
           return (
             <div key={pair.user.id} className="mb-6">
