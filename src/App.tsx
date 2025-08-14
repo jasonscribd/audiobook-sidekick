@@ -138,11 +138,11 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 function AppContent() {
   const [currentRoute, setCurrentRoute] = useState<Route>('home');
 
-  // Listen for route changes via URL
+  // Listen for route changes via URL hash
   useEffect(() => {
-    const handlePopState = () => {
-      const path = window.location.pathname;
-      if (path.includes('conversation')) {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash === '#conversation') {
         setCurrentRoute('conversation');
       } else {
         setCurrentRoute('home');
@@ -150,20 +150,20 @@ function AppContent() {
     };
 
     // Set initial route
-    handlePopState();
+    handleHashChange();
     
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   const navigateToConversation = () => {
     setCurrentRoute('conversation');
-    window.history.pushState({}, '', '/conversation');
+    window.location.hash = '#conversation';
   };
 
   const navigateToHome = () => {
     setCurrentRoute('home');
-    window.history.pushState({}, '', '/');
+    window.location.hash = '';
   };
 
   if (currentRoute === 'conversation') {
