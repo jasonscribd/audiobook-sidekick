@@ -35,18 +35,13 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
     const filtered = history.filter(item => item.role === 'user' || item.role === 'sidekick');
     const pairs: Array<{ user?: HistoryItem; response?: HistoryItem }> = [];
     
-    console.log('DEBUG: Filtered history:', filtered.map(item => `${item.role}: ${item.content?.slice(0, 30)}...`));
-    
     for (let i = 0; i < filtered.length; i++) {
-      console.log(`Processing item ${i}: ${filtered[i].role}`);
-      
       if (filtered[i].role === 'user') {
         const userMessage = filtered[i];
         const nextMessage = filtered[i + 1];
         const responseMessage = nextMessage?.role === 'sidekick' ? nextMessage : undefined;
         
         pairs.push({ user: userMessage, response: responseMessage });
-        console.log('Added user pair');
         
         // Skip the response message in the next iteration if we found it
         if (responseMessage) {
@@ -56,8 +51,6 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
         // Handle orphaned sidekick responses (responses without user questions)
         const prevMessage = filtered[i - 1];
         const isOrphan = !prevMessage || prevMessage.role !== 'user';
-        
-        console.log(`Sidekick message ${i}: prevMessage exists: ${!!prevMessage}, isOrphan: ${isOrphan}`);
         
         if (isOrphan) {
           pairs.push({ 
@@ -69,12 +62,10 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
             },
             response: filtered[i] 
           });
-          console.log('Added orphan pair');
         }
       }
     }
     
-    console.log('Final pairs:', pairs);
     return pairs;
   }, [history]);
 
@@ -370,29 +361,63 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
 
       {/* Messages List */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
-        {/* Always visible debug info */}
-        <div className="bg-red-900 text-white p-4 mb-4 rounded">
-          <p className="font-bold">DEBUG INFO:</p>
-          <p>History length: {history.length}</p>
-          <p>ConversationPairs length: {conversationPairs.length}</p>
-          <p>First history item: {history[0] ? `${history[0].role}: ${history[0].content?.slice(0, 50)}...` : 'None'}</p>
-          <p>Pairs type: {Array.isArray(conversationPairs) ? 'Array' : typeof conversationPairs}</p>
-          <p>First pair: {conversationPairs[0] ? `User: ${conversationPairs[0].user?.content?.slice(0, 30) || 'None'}, Response: ${conversationPairs[0].response?.content?.slice(0, 30) || 'None'}` : 'None'}</p>
-        </div>
+        {/* Show message if no conversations yet */}
+        {conversationPairs.length === 0 && (
+          <div className="text-center text-text-muted mt-8">
+            <p className="text-sm mb-2">No conversation history yet.</p>
+            <p className="text-xs">Start a conversation by asking a question below!</p>
+          </div>
+        )}
         
-        {/* Ultra simple display test */}
-        <div className="text-white text-lg mb-4">
-          Total pairs to render: {conversationPairs.length}
-        </div>
-        
+        {/* Display conversation pairs in requested format */}
         {conversationPairs.map((pair, index) => (
-          <div key={index} className="mb-4 p-3 border border-green-500 bg-gray-800">
-            <div className="text-red-400 font-bold">
-              *{pair.user?.content || '[No user content]'}*
+          <div key={index} className="mb-6">
+            <div className="text-text text-[16px] leading-[150%]">
+              <span className="font-bold italic text-accent-warm">
+                *{pair.user?.content || '[Question not found]'}*
+              </span>
+              <span> </span>
+              <span>
+                {pair.response?.content || ''}
+              </span>
             </div>
-            <div className="text-white mt-2">
-              {pair.response?.content || '[No response content]'}
-            </div>
+            
+            {/* Meta Row */}
+            {pair.response && (
+              <div className="flex items-center justify-between mt-3">
+                <span className="text-text-muted text-[12px] font-inter">
+                  {formatTimestamp(pair.response.timestamp)}
+                </span>
+                <div className="flex items-center space-x-3">
+                  {/* External Link Icon */}
+                  <button
+                    aria-label="Open externally"
+                    className="opacity-80 hover:opacity-100 focus:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg rounded"
+                  >
+                    <ExternalLink 
+                      size={21} 
+                      strokeWidth={1.75}
+                      style={{ color: 'rgba(237, 237, 237, 0.8)' }}
+                    />
+                  </button>
+                  
+                  {/* Speaker Icon */}
+                  <button
+                    aria-label="Play/Stop TTS"
+                    disabled={settings.silent}
+                    className={`opacity-80 hover:opacity-100 focus:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg rounded ${
+                      settings.silent ? 'cursor-not-allowed opacity-40' : ''
+                    }`}
+                  >
+                    <Volume2 
+                      size={21} 
+                      strokeWidth={1.75}
+                      style={{ color: 'rgba(237, 237, 237, 0.8)' }}
+                    />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         ))}
 
