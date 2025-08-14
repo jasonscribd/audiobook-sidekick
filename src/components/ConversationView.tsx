@@ -35,13 +35,18 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
     const filtered = history.filter(item => item.role === 'user' || item.role === 'sidekick');
     const pairs: Array<{ user?: HistoryItem; response?: HistoryItem }> = [];
     
+    console.log('DEBUG: Filtered history:', filtered.map(item => `${item.role}: ${item.content?.slice(0, 30)}...`));
+    
     for (let i = 0; i < filtered.length; i++) {
+      console.log(`Processing item ${i}: ${filtered[i].role}`);
+      
       if (filtered[i].role === 'user') {
         const userMessage = filtered[i];
         const nextMessage = filtered[i + 1];
         const responseMessage = nextMessage?.role === 'sidekick' ? nextMessage : undefined;
         
         pairs.push({ user: userMessage, response: responseMessage });
+        console.log('Added user pair');
         
         // Skip the response message in the next iteration if we found it
         if (responseMessage) {
@@ -51,6 +56,8 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
         // Handle orphaned sidekick responses (responses without user questions)
         const prevMessage = filtered[i - 1];
         const isOrphan = !prevMessage || prevMessage.role !== 'user';
+        
+        console.log(`Sidekick message ${i}: prevMessage exists: ${!!prevMessage}, isOrphan: ${isOrphan}`);
         
         if (isOrphan) {
           pairs.push({ 
@@ -62,10 +69,12 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
             },
             response: filtered[i] 
           });
+          console.log('Added orphan pair');
         }
       }
     }
     
+    console.log('Final pairs:', pairs);
     return pairs;
   }, [history]);
 
