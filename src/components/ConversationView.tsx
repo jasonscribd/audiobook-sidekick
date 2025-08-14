@@ -35,9 +35,6 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
     const filtered = history.filter(item => item.role === 'user' || item.role === 'sidekick');
     const pairs: Array<{ user: HistoryItem; response?: HistoryItem }> = [];
     
-    console.log('ConversationView - Raw history:', history);
-    console.log('ConversationView - Filtered history:', filtered);
-    
     for (let i = 0; i < filtered.length; i++) {
       if (filtered[i].role === 'user') {
         const userMessage = filtered[i];
@@ -53,7 +50,6 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
       }
     }
     
-    console.log('ConversationView - Created pairs:', pairs);
     return pairs;
   }, [history]);
 
