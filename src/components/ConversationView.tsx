@@ -376,12 +376,14 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
           <p>History length: {history.length}</p>
           <p>ConversationPairs length: {conversationPairs.length}</p>
           <p>First history item: {history[0] ? `${history[0].role}: ${history[0].content?.slice(0, 50)}...` : 'None'}</p>
+          <p>Pairs type: {Array.isArray(conversationPairs) ? 'Array' : typeof conversationPairs}</p>
+          <p>First pair: {conversationPairs[0] ? `User: ${conversationPairs[0].user?.content?.slice(0, 30) || 'None'}, Response: ${conversationPairs[0].response?.content?.slice(0, 30) || 'None'}` : 'None'}</p>
         </div>
         
-        {conversationPairs.map((pair, index) => {
-          
+        {/* Force display of pairs even if length seems wrong */}
+        {conversationPairs && Array.isArray(conversationPairs) && conversationPairs.map((pair, index) => {
           return (
-            <div key={pair.user?.id || pair.response?.id || index} className="mb-6">
+            <div key={pair.user?.id || pair.response?.id || index} className="mb-6 border border-yellow-500 p-2">
               <div className="text-text text-[16px] leading-[150%]">
                 {/* User question in bold italics with asterisks */}
                 {pair.user && (
@@ -445,6 +447,7 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
             </div>
           );
         })}
+
         
         {/* Display current streaming pair if any */}
         {currentStreamingPair && (
