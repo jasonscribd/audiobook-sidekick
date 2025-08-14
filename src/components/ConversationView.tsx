@@ -245,7 +245,7 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
         {/* Center: Title */}
         <div className="flex-1 flex justify-center">
           <h1 className="text-text text-[17px] font-semibold tracking-[0.01em]">
-            Audiobook sidekick
+            Audiobook Sidekick
           </h1>
         </div>
 
