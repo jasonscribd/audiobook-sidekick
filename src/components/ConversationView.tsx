@@ -277,9 +277,9 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack, not
           <button
             onClick={onNavigateBack}
             aria-label="Back to audiobook"
-            className="w-11 h-11 flex items-center justify-center text-white opacity-90 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-all duration-200 hover:bg-white hover:bg-opacity-10 rounded-full"
+            className="w-12 h-12 flex items-center justify-center text-white opacity-95 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-all duration-200 hover:scale-105 rounded-full"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth={3.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>

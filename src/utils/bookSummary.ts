@@ -135,3 +135,4 @@ Please provide a helpful answer using the book context when relevant. Keep respo
 
   return enhancedPrompt;
 }
+
