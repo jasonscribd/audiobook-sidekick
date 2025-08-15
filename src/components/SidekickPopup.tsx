@@ -201,15 +201,23 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose, onNavigateToConv
             let sentenceBuffer = '';
             
             // Stream response and process TTS concurrently
+            let displayDelay = 0;
             const response = await chatCompletionStreaming(
               prompt, 
               settings, 
               useSimpleModel,
               (chunk) => {
-                streamedText += chunk;
-                setAssistantText(streamedText);
+                // Add slight delay to text display to mask TTS generation time
+                setTimeout(() => {
+                  if (!abortControllerRef.current?.signal.aborted) {
+                    streamedText += chunk;
+                    setAssistantText(streamedText);
+                  }
+                }, displayDelay);
                 
-                // Accumulate sentences for TTS
+                displayDelay += 25; // 25ms delay per chunk for smoother reading experience
+                
+                // Accumulate sentences for TTS (process immediately for audio)
                 sentenceBuffer += chunk;
                 
                 // Check for complete sentences

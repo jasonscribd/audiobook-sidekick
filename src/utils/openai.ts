@@ -169,11 +169,10 @@ export async function synthesizeSpeech(text: string, settings: Settings): Promis
       Authorization: `Bearer ${settings.apiKey}`,
     },
     body: JSON.stringify({
-      model: "tts-1-hd", // Use HD model for faster processing
+      model: "tts-1", // Use standard model for cost efficiency
       voice: settings.voiceId || "alloy",
       input: text,
       format: "mp3",
-      speed: 1.1, // Slightly faster speech for reduced perceived latency
     }),
   }, 15000);
 
@@ -269,11 +268,10 @@ export function preWarmConnections(apiKey: string): void {
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "tts-1-hd",
+      model: "tts-1",
       voice: "alloy",
       input: "test",
       format: "mp3",
-      speed: 1.1,
     }),
   }).catch(() => {
     // Ignore errors, this is just for warming
