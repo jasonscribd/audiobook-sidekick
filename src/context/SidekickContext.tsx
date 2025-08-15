@@ -23,7 +23,7 @@ export type Settings = {
   voiceId: string;
   debug: boolean;
   silent: boolean; // if true, skip TTS playback
-  fastMode: boolean; // if true, use gpt-3.5-turbo-mini for simple tasks
+  fastMode: boolean; // if true, use gpt-4o-mini for complex tasks (gpt-3.5-turbo-0125 is default)
   prewarm?: boolean; // gate for API pre-warming
 };
 

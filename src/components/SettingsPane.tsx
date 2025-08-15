@@ -87,7 +87,7 @@ export default function SettingsPane({ onClose }: Props) {
             checked={localSettings.fastMode}
             onChange={(e) => setLocalSettings({ ...localSettings, fastMode: e.target.checked })}
           />
-          <span>Fast Mode (gpt-3.5-turbo-mini)</span>
+          <span>Premium Mode (gpt-4o-mini)</span>
         </label>
 
         <label className="flex items-center gap-2 mb-4">
