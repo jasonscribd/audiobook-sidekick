@@ -13,6 +13,7 @@ An intelligent, hands-free web companion that transforms your audiobook experien
 
 ## 🚀 Core Features
 
+- **Interactive Audio Player** → Drag-to-scrub progress bar with smooth audio navigation
 - **Conversation View** → Dedicated chat interface with streaming responses and conversation history
 - **Smart Note Markers** → Visual timeline dots showing saved notes linked to audio timestamps  
 - **Intelligent Intent Detection** → Recognizes Notes, Definitions, Questions, and Book-specific queries
@@ -25,7 +26,7 @@ An intelligent, hands-free web companion that transforms your audiobook experien
 ## 🛠️ Tech Stack
 
 - **Frontend**: Vite + React + TypeScript + Tailwind CSS  
-- **Audio**: Web Audio API + OpenAI Whisper & TTS with streaming optimization
+- **Audio**: Interactive HTML5 Audio + Web Audio API + OpenAI Whisper & TTS with streaming optimization
 - **AI**: OpenAI GPT-4o-mini for chat completions with context-aware book integration
 - **Routing**: Hash-based SPA navigation for GitHub Pages compatibility
 - **Storage**: LocalStorage for settings, history, and note markers persistence
@@ -57,6 +58,14 @@ Open `http://localhost:5173` and head to **Settings** to add your OpenAI API key
 | **Define** | "Define bildungsroman" | 1-sentence definition via streaming TTS |
 | **Question** | "Who was Virginia Woolf?" | 2-sentence answer via streaming TTS |
 | **Book** | "Tell me about Long John Silver" | Context-aware response using Treasure Island summary |
+
+### Interactive Audio Player
+- **Drag-to-Scrub** → Smooth progress bar dragging with real-time audio seeking
+- **Click-to-Seek** → Single-click anywhere on progress bar to jump to position
+- **Live Feedback** → Visual knob scaling and timestamp updates during interaction
+- **Touch Support** → Full mobile and tablet drag functionality
+- **Keyboard Navigation** → Arrow keys for 5s steps, Home/End for full range
+- **Smart Pausing** → Audio automatically pauses during scrubbing for better UX
 
 ### Note Markers System
 - **Visual Timeline Dots** → Yellow markers appear on audio progress bar
@@ -110,6 +119,8 @@ This builds the project and publishes to the `gh-pages` branch. Enable GitHub Pa
 - **Progressive Audio**: First sentence plays while subsequent ones generate
 - **Smart Text Display**: 25ms chunk delays to mask TTS generation time
 - **Single AudioContext**: Reused audio context to eliminate initialization overhead
+- **Interactive Audio Controls**: Optimized drag/touch events with throttled updates
+- **Real-time UI Feedback**: Smooth visual transitions during audio scrubbing
 - **Hash-based Routing**: SPA navigation compatible with GitHub Pages
 - **Lazy Loading**: jsPDF and other heavy dependencies load on demand
 - **LocalStorage Persistence**: Settings, history, and note markers cached locally
