@@ -169,10 +169,11 @@ export async function synthesizeSpeech(text: string, settings: Settings): Promis
       Authorization: `Bearer ${settings.apiKey}`,
     },
     body: JSON.stringify({
-      model: "tts-1",
+      model: "tts-1-hd", // Use HD model for faster processing
       voice: settings.voiceId || "alloy",
       input: text,
       format: "mp3",
+      speed: 1.1, // Slightly faster speech for reduced perceived latency
     }),
   }, 15000);
 
@@ -184,6 +185,60 @@ export async function synthesizeSpeech(text: string, settings: Settings): Promis
 
   const arrayBuf = await res.arrayBuffer();
   return arrayBuf;
+}
+
+// Stream TTS for sentences as they arrive
+export async function synthesizeSpeechChunked(
+  textStream: AsyncIterable<string>, 
+  settings: Settings,
+  onAudioChunk?: (audio: ArrayBuffer) => void
+): Promise<void> {
+  if (!settings.apiKey) throw new Error("OpenAI API key missing");
+  
+  let buffer = '';
+  const sentences: string[] = [];
+  
+  // Collect complete sentences from the stream
+  for await (const chunk of textStream) {
+    buffer += chunk;
+    
+    // Split on sentence endings
+    const matches = buffer.match(/[.!?]+/g);
+    if (matches) {
+      const parts = buffer.split(/([.!?]+)/);
+      for (let i = 0; i < parts.length - 1; i += 2) {
+        if (parts[i] && parts[i + 1]) {
+          const sentence = parts[i] + parts[i + 1];
+          if (sentence.trim().length > 10) { // Only process substantial sentences
+            sentences.push(sentence.trim());
+          }
+        }
+      }
+      // Keep the incomplete part
+      buffer = parts[parts.length - 1] || '';
+    }
+    
+    // Process complete sentences immediately
+    while (sentences.length > 0) {
+      const sentence = sentences.shift()!;
+      try {
+        const audioBuffer = await synthesizeSpeech(sentence, settings);
+        onAudioChunk?.(audioBuffer);
+      } catch (error) {
+        console.error('TTS chunk failed:', error);
+      }
+    }
+  }
+  
+  // Process any remaining text
+  if (buffer.trim().length > 5) {
+    try {
+      const audioBuffer = await synthesizeSpeech(buffer.trim(), settings);
+      onAudioChunk?.(audioBuffer);
+    } catch (error) {
+      console.error('Final TTS chunk failed:', error);
+    }
+  }
 }
 
 // Pre-warm API connections to eliminate cold starts
@@ -214,10 +269,11 @@ export function preWarmConnections(apiKey: string): void {
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "tts-1",
+      model: "tts-1-hd",
       voice: "alloy",
       input: "test",
       format: "mp3",
+      speed: 1.1,
     }),
   }).catch(() => {
     // Ignore errors, this is just for warming

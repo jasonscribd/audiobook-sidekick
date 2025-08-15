@@ -137,15 +137,22 @@ const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 function AppContent() {
   const [currentRoute, setCurrentRoute] = useState<Route>('home');
+  const [currentNoteId, setCurrentNoteId] = useState<string | null>(null);
 
   // Listen for route changes via URL hash
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
-      if (hash === '#conversation') {
+      if (hash.startsWith('#conversation')) {
         setCurrentRoute('conversation');
+        
+        // Parse noteId from URL if present
+        const urlParams = new URLSearchParams(hash.split('?')[1] || '');
+        const noteId = urlParams.get('noteId');
+        setCurrentNoteId(noteId);
       } else {
         setCurrentRoute('home');
+        setCurrentNoteId(null);
       }
     };
 
@@ -167,7 +174,7 @@ function AppContent() {
   };
 
   if (currentRoute === 'conversation') {
-    return <ConversationView onNavigateBack={navigateToHome} />;
+    return <ConversationView onNavigateBack={navigateToHome} noteId={currentNoteId} />;
   }
 
   return <HomeScreen onNavigateToConversation={navigateToConversation} />;

@@ -6,13 +6,23 @@ interface Props {
 }
 
 export default function SettingsPane({ onClose }: Props) {
-  const { settings, updateSettings } = useContext(SidekickContext);
+  const { settings, updateSettings, history, notes, clearAllData } = useContext(SidekickContext);
   const [localSettings, setLocalSettings] = useState(settings);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const handleSave = () => {
     updateSettings(localSettings);
     onClose();
   };
+
+  const handleClearAll = () => {
+    clearAllData();
+    setShowClearConfirm(false);
+    // Show brief feedback that data was cleared
+    // Note: In a production app, you might want a toast notification here
+  };
+
+  const totalItems = history.length + notes.length;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
@@ -98,6 +108,21 @@ export default function SettingsPane({ onClose }: Props) {
           <span>Debug Mode</span>
         </label>
 
+        {/* Clear History Section */}
+        <div className="border-t border-palette3 pt-4 mb-4">
+          <h3 className="text-sm font-semibold mb-2 text-red-300">Data Management</h3>
+          <p className="text-xs text-gray-300 mb-3">
+            Clear all conversation history and note markers ({totalItems} items stored)
+          </p>
+          <button 
+            className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm transition-colors"
+            onClick={() => setShowClearConfirm(true)}
+            disabled={totalItems === 0}
+          >
+            Clear All History & Notes
+          </button>
+        </div>
+
         <div className="flex justify-end gap-2">
           <button className="bg-palette3 px-4 py-2 rounded text-white" onClick={onClose}>
             Cancel
@@ -107,6 +132,32 @@ export default function SettingsPane({ onClose }: Props) {
           </button>
         </div>
       </div>
+
+      {/* Clear Confirmation Dialog */}
+      {showClearConfirm && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-palette4 p-6 rounded-lg max-w-sm w-full text-white mx-4 border border-red-300">
+            <h3 className="text-lg font-semibold mb-2 text-red-300">Clear All Data?</h3>
+            <p className="text-sm text-gray-300 mb-4">
+              This will permanently delete all {history.length} conversation messages and {notes.length} note markers. This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button 
+                className="bg-palette3 px-3 py-2 rounded text-sm"
+                onClick={() => setShowClearConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-sm font-semibold transition-colors"
+                onClick={handleClearAll}
+              >
+                Clear All Data
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

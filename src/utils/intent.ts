@@ -1,12 +1,16 @@
-export type Intent = "note" | "define" | "fact" | "unknown";
+export type Intent = "note" | "define" | "fact" | "book" | "unknown";
 
 export interface ParsedIntent {
   intent: Intent;
   payload: string;
+  bookId?: string; // For book-specific questions
 }
+
+import { isQuestionAboutBook, getCurrentBookId } from './bookSummary';
 
 export function parseIntent(text: string): ParsedIntent {
   const trimmed = text.trim();
+  
   // Note: starts with "note:" or "note" command
   const noteMatch = /^(note|take a note|remember this|remember)\s*[:\-]?\s*(.*)/i.exec(trimmed);
   if (noteMatch) {
@@ -17,6 +21,12 @@ export function parseIntent(text: string): ParsedIntent {
   const defineMatch = /^(define\s+)(.+)/i.exec(trimmed);
   if (defineMatch) {
     return { intent: "define", payload: defineMatch[2].trim() };
+  }
+
+  // Book: check if question is about a specific book we have summaries for
+  const currentBookId = getCurrentBookId();
+  if (isQuestionAboutBook(trimmed, currentBookId)) {
+    return { intent: "book", payload: trimmed, bookId: currentBookId };
   }
 
   // Fact: interrogative questions.

@@ -6,16 +6,18 @@ import SettingsPane from "./SettingsPane";
 import { useRecorder } from "../hooks/useRecorder";
 import { transcribeAudio, chatCompletion, synthesizeSpeech } from "../utils/openai";
 import { parseIntent } from "../utils/intent";
+import { createBookEnhancedPrompt } from "../utils/bookSummary";
 import { audioService } from "../services/audioService";
 
 interface ConversationViewProps {
   onNavigateBack: () => void;
+  noteId?: string | null;
 }
 
 type ConversationState = 'idle' | 'listening' | 'transcribing' | 'streaming' | 'complete' | 'error';
 
-const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) => {
-  const { history, addHistory, settings, updateSettings } = useContext(SidekickContext);
+const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack, noteId }) => {
+  const { history, addHistory, settings, updateSettings, notes } = useContext(SidekickContext);
   const { recording, start, stop } = useRecorder();
   
   const [conversationState, setConversationState] = useState<ConversationState>('idle');
@@ -25,49 +27,24 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
   const [streamingText, setStreamingText] = useState('');
   const [isTTSPlaying, setIsTTSPlaying] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const textInputRef = useRef<HTMLInputElement>(null);
 
-  // Get conversation history and group user questions with AI responses
-  const conversationPairs = React.useMemo(() => {
-    const filtered = history.filter(item => item.role === 'user' || item.role === 'sidekick');
-    const pairs: Array<{ user?: HistoryItem; response?: HistoryItem }> = [];
-    
-    for (let i = 0; i < filtered.length; i++) {
-      if (filtered[i].role === 'user') {
-        const userMessage = filtered[i];
-        const nextMessage = filtered[i + 1];
-        const responseMessage = nextMessage?.role === 'sidekick' ? nextMessage : undefined;
-        
-        pairs.push({ user: userMessage, response: responseMessage });
-        
-        // Skip the response message in the next iteration if we found it
-        if (responseMessage) {
-          i++; // Skip the response message
-        }
-      } else if (filtered[i].role === 'sidekick') {
-        // Handle orphaned sidekick responses (responses without user questions)
-        const prevMessage = filtered[i - 1];
-        const isOrphan = !prevMessage || prevMessage.role !== 'user';
-        
-        if (isOrphan) {
-          pairs.push({ 
-            user: {
-              id: `orphan-user-${filtered[i].id}`,
-              timestamp: filtered[i].timestamp,
-              role: 'user',
-              content: '[Question not found]'
-            },
-            response: filtered[i] 
-          });
-        }
-      }
-    }
-    
-    return pairs;
+  // Get conversation history (AI responses only)
+  const conversationResponses = React.useMemo(() => {
+    return history.filter(item => item.role === 'sidekick');
   }, [history]);
+
+  // Helper function to format time in MM:SS
+  const formatTimeFromSeconds = (seconds: number): string => {
+    if (!seconds || !isFinite(seconds)) return "00:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   // Format timestamp for display
   const formatTimestamp = (timestamp: string) => {
@@ -87,7 +64,27 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [conversationPairs, streamingText]);
+  }, [conversationResponses, streamingText]);
+
+  // Handle note navigation when noteId is provided
+  useEffect(() => {
+    if (noteId) {
+      const note = notes.find(n => n.id === noteId);
+      if (note) {
+        if (note.historyId) {
+          // Note is linked to a conversation - could scroll to and highlight it
+          // For now, just show a toast
+          setToastMessage(`Note at ${formatTimeFromSeconds(note.timeSec)} — linked conversation shown below.`);
+        } else {
+          // Note has no linked conversation
+          setToastMessage(`Note at ${formatTimeFromSeconds(note.timeSec)} — latest conversation shown.`);
+        }
+        
+        // Auto-dismiss toast after 3 seconds
+        setTimeout(() => setToastMessage(null), 3000);
+      }
+    }
+  }, [noteId, notes, formatTimeFromSeconds]);
 
   // Handle "Read answers" toggle
   const handleToggleReadAnswers = () => {
@@ -166,6 +163,9 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
         prompt = `Provide a one sentence definition for: ${payload}`;
       } else if (intent === "fact") {
         prompt = `Answer briefly (2 sentences max): ${payload}`;
+      } else if (intent === "book" && parsed.bookId) {
+        // Use book-enhanced prompt with summary context
+        prompt = await createBookEnhancedPrompt(payload, parsed.bookId);
       } else if (intent === "note") {
         // Handle note differently - show "Noted." and save cleaned note
         setStreamingText("Noted.");
@@ -193,6 +193,7 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
       }
 
       // Use appropriate model
+      // For book queries, use the full model to handle the rich context
       const useSimpleModel = intent === "define" || intent === "fact";
       const response = await chatCompletion(prompt, settings, useSimpleModel);
       
@@ -247,19 +248,11 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
   };
 
   // Handle current streaming response
-  const currentStreamingPair = conversationState === 'streaming' && streamingText ? {
-    user: conversationPairs[conversationPairs.length - 1]?.user || {
-      id: 'temp-user',
-      timestamp: new Date().toLocaleTimeString(),
-      role: 'user' as const,
-      content: ''
-    },
-    response: {
-      id: 'streaming',
-      timestamp: new Date().toLocaleTimeString(),
-      role: 'sidekick' as const,
-      content: streamingText
-    }
+  const currentStreamingResponse = conversationState === 'streaming' && streamingText ? {
+    id: 'streaming',
+    timestamp: new Date().toLocaleTimeString(),
+    role: 'sidekick' as const,
+    content: streamingText
   } : null;
 
   return (
@@ -362,81 +355,67 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
       {/* Messages List */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
         {/* Show message if no conversations yet */}
-        {conversationPairs.length === 0 && (
+        {conversationResponses.length === 0 && (
           <div className="text-center text-text-muted mt-8">
             <p className="text-sm mb-2">No conversation history yet.</p>
             <p className="text-xs">Start a conversation by asking a question below!</p>
           </div>
         )}
         
-        {/* Display conversation pairs in requested format */}
-        {conversationPairs.map((pair, index) => (
-          <div key={index} className="mb-6">
-            <div className="text-text text-[16px] leading-[150%]">
-              <span className="font-bold italic text-accent-warm">
-                *{pair.user?.content || '[Question not found]'}*
-              </span>
-              <span> </span>
-              <span>
-                {pair.response?.content || ''}
-              </span>
+        {/* Display conversation responses (answers only) */}
+        {conversationResponses.map((response, index) => (
+          <div key={response.id || index} className="mb-6">
+            <div className="text-[16px] leading-[150%]" style={{color: '#EDEDED'}}>
+              {response.content}
             </div>
             
             {/* Meta Row */}
-            {pair.response && (
-              <div className="flex items-center justify-between mt-3">
-                <span className="text-text-muted text-[12px] font-inter">
-                  {formatTimestamp(pair.response.timestamp)}
-                </span>
-                <div className="flex items-center space-x-3">
-                  {/* External Link Icon */}
-                  <button
-                    aria-label="Open externally"
-                    className="opacity-80 hover:opacity-100 focus:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg rounded"
-                  >
-                    <ExternalLink 
-                      size={21} 
-                      strokeWidth={1.75}
-                      style={{ color: 'rgba(237, 237, 237, 0.8)' }}
-                    />
-                  </button>
-                  
-                  {/* Speaker Icon */}
-                  <button
-                    aria-label="Play/Stop TTS"
-                    disabled={settings.silent}
-                    className={`opacity-80 hover:opacity-100 focus:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg rounded ${
-                      settings.silent ? 'cursor-not-allowed opacity-40' : ''
-                    }`}
-                  >
-                    <Volume2 
-                      size={21} 
-                      strokeWidth={1.75}
-                      style={{ color: 'rgba(237, 237, 237, 0.8)' }}
-                    />
-                  </button>
-                </div>
+            <div className="flex items-center justify-between mt-3">
+              <span style={{color: '#B9B9B9'}} className="text-[12px] font-inter">
+                {formatTimestamp(response.timestamp)}
+              </span>
+              <div className="flex items-center space-x-3">
+                {/* External Link Icon */}
+                <button
+                  aria-label="Open externally"
+                  className="opacity-80 hover:opacity-100 focus:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 rounded"
+                  style={{'--tw-ring-color': '#F3A46B'} as React.CSSProperties}
+                >
+                  <ExternalLink 
+                    size={21} 
+                    strokeWidth={1.75}
+                    style={{ color: 'rgba(237, 237, 237, 0.8)' }}
+                  />
+                </button>
+                
+                {/* Speaker Icon */}
+                <button
+                  aria-label="Play/Stop TTS"
+                  disabled={settings.silent}
+                  className={`opacity-80 hover:opacity-100 focus:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 rounded ${
+                    settings.silent ? 'cursor-not-allowed opacity-40' : ''
+                  }`}
+                  style={{'--tw-ring-color': '#F3A46B'} as React.CSSProperties}
+                >
+                  <Volume2 
+                    size={21} 
+                    strokeWidth={1.75}
+                    style={{ color: 'rgba(237, 237, 237, 0.8)' }}
+                  />
+                </button>
               </div>
-            )}
+            </div>
           </div>
         ))}
 
         
-        {/* Display current streaming pair if any */}
-        {currentStreamingPair && (
-          <div key="streaming-pair" className="mb-6">
-            <div className="text-text text-[16px] leading-[150%]">
-              {/* User question in bold italics with asterisks */}
-              <span className="font-bold italic text-accent-warm">
-                *{currentStreamingPair.user.content}*
-              </span>
-              {/* Space between question and answer */}
-              <span> </span>
+        {/* Display current streaming response if any */}
+        {currentStreamingResponse && (
+          <div key="streaming-response" className="mb-6">
+            <div className="text-[16px] leading-[150%]" style={{color: '#EDEDED'}}>
               {/* Streaming AI response */}
-              <span>
-                {currentStreamingPair.response.content}
-                <span className="animate-pulse motion-reduce:animate-none">|</span>
-              </span>
+              {currentStreamingResponse.content}
+              <span className="animate-pulse motion-reduce:animate-none">|</span>
             </div>
           </div>
         )}
@@ -499,6 +478,18 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack }) =
           </div>
         )}
       </div>
+
+      {/* Toast Message */}
+      {toastMessage && (
+        <div className="absolute top-4 left-4 right-4 z-50">
+          <div 
+            className="bg-accent text-black px-4 py-2 rounded-lg shadow-lg text-sm font-medium"
+            style={{ backgroundColor: '#F2FD53', color: '#000' }}
+          >
+            {toastMessage}
+          </div>
+        </div>
+      )}
 
       {/* History Overlay */}
       {showHistory && (

@@ -6,7 +6,8 @@ import HistoryDrawer from "./HistoryDrawer";
 import { useRecorder } from "../hooks/useRecorder";
 import { transcribeAudio } from "../utils/openai";
 import { parseIntent } from "../utils/intent";
-import { chatCompletion, synthesizeSpeech, preWarmConnections } from "../utils/openai";
+import { chatCompletion, chatCompletionStreaming, synthesizeSpeech, preWarmConnections } from "../utils/openai";
+import { createBookEnhancedPrompt } from "../utils/bookSummary";
 import { audioService } from "../services/audioService";
 
 interface SidekickPopupProps {
@@ -26,7 +27,7 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose, onNavigateToConv
   const [isNoteCommand, setIsNoteCommand] = useState(false);
   
   const { recording, start, stop } = useRecorder();
-  const { addHistory, settings } = useContext(SidekickContext);
+  const { addHistory, settings, notes, updateNote } = useContext(SidekickContext);
   const responseRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -146,69 +147,133 @@ const SidekickPopup: React.FC<SidekickPopupProps> = ({ onClose, onNavigateToConv
             prompt = `Provide a one sentence definition for: ${payload}`;
           } else if (intent === "fact") {
             prompt = `Answer briefly (2 sentences max): ${payload}`;
+          } else if (intent === "book" && parsed.bookId) {
+            // Use book-enhanced prompt with summary context
+            prompt = await createBookEnhancedPrompt(payload, parsed.bookId);
           } else {
             prompt = payload;
           }
 
           try {
             // Use simple model for define/fact queries for speed and cost optimization
+            // For book queries, use the full model to handle the rich context
             const useSimpleModel = intent === "define" || intent === "fact";
-            // Simulate streaming by chunking the response
-            const response = await chatCompletion(prompt, settings, useSimpleModel);
-            const words = response.split(' ');
-            
-            for (let i = 0; i < words.length; i++) {
-              if (abortControllerRef.current?.signal.aborted) {
-                return;
-              }
-              
-              const chunk = i === 0 ? words[i] : ' ' + words[i];
-              streamedText += chunk;
-              setAssistantText(streamedText);
-              
-              // Simulate streaming delay
-              await new Promise(resolve => setTimeout(resolve, 50));
-            }
 
+            // Real streaming with concurrent TTS generation
+            let fullResponse = '';
+            const audioChunks: ArrayBuffer[] = [];
+            let isFirstSentence = true;
+            
+            // Audio context setup (reuse single instance)
+            const getCtx = (() => {
+              let shared: AudioContext | null = null;
+              return () => {
+                if (!shared) {
+                  shared = new (window.AudioContext || (window as any).webkitAudioContext)();
+                }
+                return shared;
+              };
+            })();
+            const audioContext = !settings.silent ? getCtx() : null;
+            
+            // Process TTS for complete sentences as they arrive
+            const processSentenceForTTS = async (sentence: string) => {
+              if (settings.silent) return;
+              
+              try {
+                const audioBuf = await synthesizeSpeech(sentence, settings);
+                audioChunks.push(audioBuf);
+                
+                if (audioContext && isFirstSentence) {
+                  // Play the first sentence immediately
+                  const audioBuffer = await audioContext.decodeAudioData(audioBuf.slice(0));
+                  const source = audioContext.createBufferSource();
+                  source.buffer = audioBuffer;
+                  source.connect(audioContext.destination);
+                  source.start();
+                  isFirstSentence = false;
+                }
+              } catch (err) {
+                console.error('TTS sentence processing failed:', err);
+              }
+            };
+
+            let sentenceBuffer = '';
+            
+            // Stream response and process TTS concurrently
+            const response = await chatCompletionStreaming(
+              prompt, 
+              settings, 
+              useSimpleModel,
+              (chunk) => {
+                streamedText += chunk;
+                setAssistantText(streamedText);
+                
+                // Accumulate sentences for TTS
+                sentenceBuffer += chunk;
+                
+                // Check for complete sentences
+                const sentenceEndings = /[.!?]+/g;
+                let match;
+                while ((match = sentenceEndings.exec(sentenceBuffer)) !== null) {
+                  const endIndex = match.index + match[0].length;
+                  const completeSentence = sentenceBuffer.substring(0, endIndex).trim();
+                  
+                  if (completeSentence.length > 10) {
+                    // Process this sentence for TTS (don't await - run concurrently)
+                    processSentenceForTTS(completeSentence);
+                  }
+                  
+                  sentenceBuffer = sentenceBuffer.substring(endIndex);
+                  sentenceEndings.lastIndex = 0; // Reset regex
+                }
+              },
+              { signal: abortControllerRef.current?.signal }
+            );
+            
+            // Process any remaining text for TTS
+            if (sentenceBuffer.trim().length > 5) {
+              processSentenceForTTS(sentenceBuffer.trim());
+            }
+            
+            fullResponse = response;
             setConversationState('complete');
 
-            // TTS playback (skip if silent mode)
-            if (!settings.silent) {
-              try {
-                const audioBuf = await synthesizeSpeech(response, settings);
-                // Reuse a single AudioContext to avoid creating many instances
-                const getCtx = (() => {
-                  let shared: AudioContext | null = null;
-                  return () => {
-                    if (!shared) {
-                      shared = new (window.AudioContext || (window as any).webkitAudioContext)();
-                    }
-                    return shared;
-                  };
-                })();
-                const ctx = getCtx();
-                const audioBuffer = await ctx.decodeAudioData(audioBuf);
-                const source = ctx.createBufferSource();
-                source.buffer = audioBuffer;
-                source.connect(ctx.destination);
-                source.start();
-              } catch (err) {
-                console.error(err);
-              }
-            }
-
             // Add to history
+            const responseHistoryId = userEntryId + "-r";
             addHistory({
-              id: userEntryId + "-r",
+              id: responseHistoryId,
               timestamp: new Date().toLocaleTimeString(),
               role: "sidekick",
-              content: response,
+              content: fullResponse,
             });
+
+            // Link the most recent note to this conversation
+            const currentBookId = "treasure-island"; // Should match HomeScreen
+            const recentNotes = notes
+              .filter(note => 
+                note.bookId === currentBookId && 
+                !note.historyId && // Not already linked
+                Date.now() - new Date(note.createdAt).getTime() < 2 * 60 * 1000 // Within 2 minutes
+              )
+              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()); // Most recent first
+            
+            if (recentNotes.length > 0) {
+              const recentNote = recentNotes[0];
+              const preview = transcript.length > 0 
+                ? transcript.slice(0, 120) 
+                : fullResponse.slice(0, 120);
+              
+              updateNote(recentNote.id, {
+                historyId: responseHistoryId,
+                preview: preview,
+              });
+            }
 
             // Navigate to conversation view after a brief delay
             setTimeout(() => {
               onNavigateToConversation();
-            }, 1500);
+            }, 800); // Reduced delay since audio starts playing faster
 
           } catch (error: any) {
             if (!abortControllerRef.current?.signal.aborted) {

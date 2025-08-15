@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { 
   RotateCcw,
   RotateCw,
@@ -14,6 +14,7 @@ import {
 import SidekickPopup from "./SidekickPopup";
 import { useAudio } from "../context/AudioContext";
 import { audioService } from "../services/audioService";
+import { SidekickContext } from "../context/SidekickContext";
 
 interface HomeScreenProps {
   onNavigateToConversation: () => void;
@@ -22,6 +23,19 @@ interface HomeScreenProps {
 const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToConversation }) => {
   const [showSidekick, setShowSidekick] = useState(false);
   const audioState = useAudio();
+  const { addNote, getNotesForBook } = useContext(SidekickContext);
+
+  // Current book ID - in a real app this would come from props or state
+  const currentBookId = "treasure-island";
+  
+  // Get notes for current book
+  const bookNotes = getNotesForBook(currentBookId);
+
+  // Handle note dot click - navigate to conversation view
+  const handleNoteDotClick = (noteId: string) => {
+    // Navigate with noteId parameter
+    window.location.hash = `#conversation?noteId=${noteId}`;
+  };
 
   // Helper function to format time in MM:SS
   const formatTime = (seconds: number): string => {
@@ -45,8 +59,21 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToConversation }) => 
     }
   };
 
-  // Handle CTA click - pause audio to preserve position
+  // Handle CTA click - create note marker and pause audio to preserve position
   const handleCTAClick = () => {
+    // Create note marker at current audio time
+    const noteId = crypto.randomUUID?.() || Date.now().toString();
+    const noteMarker = {
+      id: noteId,
+      bookId: currentBookId,
+      timeSec: audioState.currentTime,
+      createdAt: new Date().toISOString(),
+      // historyId and preview will be set later when/if a conversation completes
+    };
+    
+    addNote(noteMarker);
+    
+    // Pause audio and show sidekick
     audioService.pause();
     setShowSidekick(true);
   };
@@ -196,6 +223,41 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToConversation }) => 
               onClick={handleProgressClick}
             >
               <div className="h-full bg-accent rounded-full" style={{ width: `${progressPercentage}%` }}></div>
+              
+              {/* Note Dots */}
+              {bookNotes.map((note) => {
+                const leftPercentage = audioState.duration 
+                  ? (note.timeSec / audioState.duration) * 100 
+                  : 0;
+                
+                return (
+                  <button
+                    key={note.id}
+                    onClick={() => handleNoteDotClick(note.id)}
+                    aria-label={`Open note at ${formatTime(note.timeSec)}`}
+                    className="absolute transform -translate-x-1/2 hover:scale-110 focus:scale-110 transition-transform focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1 rounded-full"
+                    style={{
+                      left: `${leftPercentage}%`,
+                      top: '-10px', // Position above the rail
+                      width: '24px', // Larger tap target
+                      height: '24px',
+                      zIndex: 10,
+                    }}
+                    title={`Note • ${formatTime(note.timeSec)}${note.preview ? ` - ${note.preview.slice(0, 50)}...` : ''}`}
+                  >
+                    {/* Visual dot */}
+                    <div 
+                      className="w-3 h-3 rounded-full mx-auto"
+                      style={{
+                        backgroundColor: '#F2FD53', // Yellow dot color
+                        border: '2px solid #000',
+                        marginTop: '5px', // Center within the tap target
+                      }}
+                    />
+                  </button>
+                );
+              })}
+              
               {/* Progress Knob */}
               <div 
                 className="absolute top-1/2 transform -translate-y-1/2 bg-accent rounded-full"
