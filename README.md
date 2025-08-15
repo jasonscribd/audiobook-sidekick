@@ -1,30 +1,34 @@
 # Audiobook Sidekick
 
-A minimalist, hands-free web companion that adds a push-to-talk AI "Sidekick" to any audiobook—while the audiobook plays in a separate app.
+An intelligent, hands-free web companion that transforms your audiobook experience with AI-powered voice interaction, contextual notes, and seamless conversation tracking.
 
 ## 🎧 How It Works
 
 1. **Open the Sidekick** in your browser while listening to any audiobook (Audible, Libby, Spotify, etc.)
-2. **Tap the Talk button** to start voice capture
-3. **Speak your request** ("Take a note: great metaphor here" or "Define epiphany")  
+2. **Tap the Talk button** to start voice capture  
+3. **Speak your request** ("Take a note: great metaphor here", "Define bildungsroman", or "Tell me about Long John Silver")
 4. **Tap Stop** to end recording
-5. **Sidekick responds** with voice + text, logs everything in History
+5. **Sidekick responds** with optimized voice + text, automatically creating timestamped note markers
+6. **Continue conversations** in the dedicated Conversation View with full chat interface
 
 ## 🚀 Core Features
 
-- **Push-to-Talk Interface** → Large Talk button, mobile-optimized
-- **Smart Intent Detection** → Automatically recognizes Notes, Definitions, and Questions
-- **Voice Interaction** → OpenAI Whisper (STT) + Advanced Voice (TTS) with 7 voice options
-- **History Management** → Filterable log with PDF export, virtualized scrolling
-- **Silent Mode** → Text-only responses when you need quiet
-- **Persistent Settings** → API key, system prompt, voice selection stored locally
+- **Conversation View** → Dedicated chat interface with streaming responses and conversation history
+- **Smart Note Markers** → Visual timeline dots showing saved notes linked to audio timestamps  
+- **Intelligent Intent Detection** → Recognizes Notes, Definitions, Questions, and Book-specific queries
+- **Optimized Voice Interaction** → OpenAI Whisper (STT) + streaming TTS with sentence-based delivery
+- **Book-Aware AI** → Enhanced responses for Treasure Island with detailed summary integration
+- **Advanced History Management** → Filterable conversations, notes, and one-click data clearing
+- **Single-Page Navigation** → Seamless routing between home and conversation views
+- **Cost-Optimized Performance** → Efficient TTS-1 model with concurrent processing
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Vite + React + TypeScript + Tailwind CSS
-- **Audio**: Web Audio API + OpenAI Whisper & TTS
-- **AI**: OpenAI GPT-4o-mini for chat completions
-- **Storage**: LocalStorage for settings & history
+- **Frontend**: Vite + React + TypeScript + Tailwind CSS  
+- **Audio**: Web Audio API + OpenAI Whisper & TTS with streaming optimization
+- **AI**: OpenAI GPT-4o-mini for chat completions with context-aware book integration
+- **Routing**: Hash-based SPA navigation for GitHub Pages compatibility
+- **Storage**: LocalStorage for settings, history, and note markers persistence
 - **Deployment**: GitHub Pages (static hosting)
 
 ## 🏃‍♂️ Quick Start
@@ -49,23 +53,34 @@ Open `http://localhost:5173` and head to **Settings** to add your OpenAI API key
 ### Voice Commands
 | Intent | Example | Response |
 |--------|---------|----------|
-| **Note** | "Take a note: love this character development" | Says "Noted", saves cleaned-up text |
-| **Define** | "Define bildungsroman" | 1-sentence definition via TTS + History |
-| **Question** | "Who was Virginia Woolf?" | 2-sentence answer via TTS + History |
+| **Note** | "Take a note: love this character development" | Says "Noted", saves timestamped note marker |
+| **Define** | "Define bildungsroman" | 1-sentence definition via streaming TTS |
+| **Question** | "Who was Virginia Woolf?" | 2-sentence answer via streaming TTS |
+| **Book** | "Tell me about Long John Silver" | Context-aware response using Treasure Island summary |
+
+### Note Markers System
+- **Visual Timeline Dots** → Yellow markers appear on audio progress bar
+- **Timestamp Linking** → Notes automatically linked to current audio position  
+- **Quick Navigation** → Click note dots to jump to conversation view
+- **Auto-Preview** → Recent conversations automatically link to note markers
 
 ### Settings Options
 - **OpenAI API Key** → Required for all AI features
-- **System Prompt** → Customize the AI's response style
+- **System Prompt** → Customize the AI's response style  
 - **Voice** → Choose from alloy, echo, fable, nova, onyx, shimmer, sage
 - **Silent Mode** → Skip TTS, text-only responses
 - **Debug Mode** → Show API request/response logs in console
+- **Data Management** → Clear all history and notes with one click
 
-## 📱 History & Export
+## 💬 Conversation View & History
 
-- **Filter by type**: All / Notes / Q&A
-- **Scroll performance**: Virtualized list handles thousands of entries
-- **PDF Export**: One-click download of filtered history
-- **Auto-collapse**: Shows recent 10 by default, expandable
+- **Dedicated Chat Interface** → Full-screen conversation view with streaming responses
+- **Answer-Focused Archive** → Clean display showing only AI responses for easy reading
+- **Real-time Streaming** → Watch responses appear word-by-word with live audio
+- **Smart Navigation** → Seamless transitions from popup to conversation view
+- **Note Integration** → Toast notifications when navigating from note markers
+- **PDF Export** → One-click download of conversation history
+- **Data Management** → Clear all conversations and notes from settings
 
 ## 🚀 Deploying to GitHub Pages
 
@@ -79,26 +94,36 @@ This builds the project and publishes to the `gh-pages` branch. Enable GitHub Pa
 ## 🔧 Development & Architecture
 
 ### Key Files
-- `src/App.tsx` → Main component with mic button & state
-- `src/utils/openai.ts` → STT, TTS, and chat API calls  
-- `src/utils/intent.ts` → Parses voice input into Note/Define/Question
-- `src/components/HistoryDrawer.tsx` → Virtualized history with PDF export
-- `src/components/SettingsPane.tsx` → Configuration UI
-- `src/context/SidekickContext.tsx` → Global state & localStorage persistence
+- `src/App.tsx` → Main app with hash-based routing and navigation
+- `src/components/HomeScreen.tsx` → Audio player interface with note markers
+- `src/components/ConversationView.tsx` → Dedicated chat interface with streaming
+- `src/components/SidekickPopup.tsx` → Voice interaction popup with optimized TTS
+- `src/utils/openai.ts` → STT, streaming TTS, and chat API calls
+- `src/utils/intent.ts` → Enhanced intent parsing including book queries
+- `src/utils/bookSummary.ts` → Treasure Island context integration
+- `src/context/SidekickContext.tsx` → Global state with notes and history management
+- `src/services/audioService.ts` → Audio playback and timeline management
 
-### Performance Notes
-- **Lazy loading**: jsPDF only loads when exporting
-- **Virtualization**: react-window handles large history lists
-- **Efficient models**: GPT-4o-mini for speed + cost optimization
-- **Local caching**: Settings & history persist in localStorage
+### Performance Optimizations
+- **Streaming TTS**: Sentence-based audio generation with concurrent processing  
+- **Cost-Efficient Model**: TTS-1 with optimized request patterns
+- **Progressive Audio**: First sentence plays while subsequent ones generate
+- **Smart Text Display**: 25ms chunk delays to mask TTS generation time
+- **Single AudioContext**: Reused audio context to eliminate initialization overhead
+- **Hash-based Routing**: SPA navigation compatible with GitHub Pages
+- **Lazy Loading**: jsPDF and other heavy dependencies load on demand
+- **LocalStorage Persistence**: Settings, history, and note markers cached locally
 
 ## 🎯 Future Enhancements
 
-- **Faster models**: Switch to gpt-3.5-turbo-mini for 2-3x speed boost
-- **Voice activity detection**: Auto-stop recording on silence
-- **Offline mode**: PWA with service worker caching
-- **Fine-tuned models**: Custom note cleanup for better accuracy
-- **Batch operations**: Group similar requests to reduce API calls
+- **Multi-Book Support**: Expand beyond Treasure Island with configurable book summaries
+- **Voice Activity Detection**: Auto-stop recording on silence detection  
+- **Progressive Web App**: Offline mode with service worker caching
+- **Enhanced Note Markers**: Category tags, search functionality, and export options
+- **Conversation Branching**: Save multiple conversation threads from same note marker
+- **Real-time Collaboration**: Share notes and conversations across devices
+- **Advanced Book Integration**: Chapter-aware context and character relationship mapping
+- **Accessibility Improvements**: Screen reader optimization and keyboard navigation
 
 ## 🤝 Contributing
 
