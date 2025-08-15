@@ -272,8 +272,18 @@ const ConversationView: React.FC<ConversationViewProps> = ({ onNavigateBack, not
           paddingBottom: '8px'
         }}
       >
-        {/* Left: Empty space for balance */}
-        <div className="w-[88px]" />
+        {/* Left: Back/Close button */}
+        <div className="w-[88px] flex justify-start">
+          <button
+            onClick={onNavigateBack}
+            aria-label="Back to audiobook"
+            className="w-11 h-11 flex items-center justify-center opacity-80 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg transition-opacity"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="rgba(237, 237, 237, 0.8)" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
 
         {/* Center: Title */}
         <div className="flex-1 flex justify-center">
