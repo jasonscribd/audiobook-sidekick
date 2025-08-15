@@ -21,13 +21,13 @@ An intelligent, hands-free web companion that transforms your audiobook experien
 - **Book-Aware AI** → Enhanced responses for Treasure Island with detailed summary integration
 - **Advanced History Management** → Filterable conversations, notes, and one-click data clearing
 - **Single-Page Navigation** → Seamless routing between home and conversation views
-- **Cost-Optimized Performance** → Efficient TTS-1 model with concurrent processing
+- **Cost-Optimized Performance** → GPT-3.5-turbo and TTS-1 models for maximum affordability
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: Vite + React + TypeScript + Tailwind CSS  
 - **Audio**: Interactive HTML5 Audio + Web Audio API + OpenAI Whisper & TTS with streaming optimization
-- **AI**: OpenAI GPT-4o-mini for chat completions with context-aware book integration
+- **AI**: OpenAI GPT-3.5-turbo for cost-efficient chat completions with context-aware book integration
 - **Routing**: Hash-based SPA navigation for GitHub Pages compatibility
 - **Storage**: LocalStorage for settings, history, and note markers persistence
 - **Deployment**: GitHub Pages (static hosting)
@@ -80,6 +80,7 @@ Open `http://localhost:5173` and head to **Settings** to add your OpenAI API key
 - **Silent Mode** → Skip TTS, text-only responses
 - **Debug Mode** → Show API request/response logs in console
 - **Data Management** → Clear all history and notes with one click
+- **API Pre-warming** → Reduce first-response latency by warming connections
 
 ## 💬 Conversation View & History
 
@@ -115,7 +116,7 @@ This builds the project and publishes to the `gh-pages` branch. Enable GitHub Pa
 
 ### Performance Optimizations
 - **Streaming TTS**: Sentence-based audio generation with concurrent processing  
-- **Cost-Efficient Model**: TTS-1 with optimized request patterns
+- **Cost-Efficient Models**: GPT-3.5-turbo and TTS-1 with optimized request patterns
 - **Progressive Audio**: First sentence plays while subsequent ones generate
 - **Smart Text Display**: 25ms chunk delays to mask TTS generation time
 - **Single AudioContext**: Reused audio context to eliminate initialization overhead

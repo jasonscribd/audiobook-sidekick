@@ -43,11 +43,11 @@ export async function transcribeAudio(blob: Blob, settings: Settings, opts: Fetc
 export async function chatCompletion(userText: string, settings: Settings, useSimpleModel = false, opts: FetchOpts = {}): Promise<string> {
   if (!settings.apiKey) throw new Error("OpenAI API key missing");
   
-  // Use cost-efficient model by default, upgrade to GPT-4o-mini for complex tasks when enabled
-  const model = (settings.fastMode && !useSimpleModel) ? "gpt-4o-mini" : "gpt-3.5-turbo-0125";
+  // Use cost-efficient model for all tasks
+  const model = "gpt-3.5-turbo-0125";
   
-  // Optimized token limits: simple tasks get fewer tokens, complex tasks with premium model get more
-  const maxTokens = useSimpleModel ? 40 : (settings.fastMode ? 150 : 100);
+  // Optimized token limits: simple tasks get fewer tokens, complex tasks get more
+  const maxTokens = useSimpleModel ? 40 : 100;
   
   const res = await fetchWithTimeout("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -89,8 +89,8 @@ export async function chatCompletionStreaming(
 ): Promise<string> {
   if (!settings.apiKey) throw new Error("OpenAI API key missing");
   
-  const model = (settings.fastMode && !useSimpleModel) ? "gpt-4o-mini" : "gpt-3.5-turbo-0125";
-  const maxTokens = useSimpleModel ? 40 : (settings.fastMode ? 150 : 100);
+  const model = "gpt-3.5-turbo-0125";
+  const maxTokens = useSimpleModel ? 40 : 100;
   
   const res = await fetchWithTimeout("https://api.openai.com/v1/chat/completions", {
     method: "POST",

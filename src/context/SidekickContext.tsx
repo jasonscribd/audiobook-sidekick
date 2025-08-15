@@ -23,7 +23,7 @@ export type Settings = {
   voiceId: string;
   debug: boolean;
   silent: boolean; // if true, skip TTS playback
-  fastMode: boolean; // if true, use gpt-4o-mini for complex tasks (gpt-3.5-turbo-0125 is default)
+
   prewarm?: boolean; // gate for API pre-warming
 };
 
@@ -51,7 +51,7 @@ export function SidekickProvider({ children }: { children: ReactNode }) {
     voiceId: "alloy",
     debug: false,
     silent: false,
-    fastMode: true, // default to fast mode for better UX
+
     prewarm: false,
   });
 
