@@ -11,7 +11,12 @@ export default function SettingsPane({ onClose }: Props) {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const handleSave = () => {
-    updateSettings(localSettings);
+    // Clean up any old fastMode references from localStorage
+    const cleanSettings = { ...localSettings };
+    if ('fastMode' in cleanSettings) {
+      delete (cleanSettings as any).fastMode;
+    }
+    updateSettings(cleanSettings);
     onClose();
   };
 
