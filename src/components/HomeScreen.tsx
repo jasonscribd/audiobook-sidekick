@@ -22,6 +22,8 @@ interface HomeScreenProps {
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToConversation }) => {
   const [showSidekick, setShowSidekick] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragPosition, setDragPosition] = useState<number | null>(null);
   const audioState = useAudio();
   const { addNote, getNotesForBook } = useContext(SidekickContext);
 
@@ -92,22 +94,98 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToConversation }) => 
     audioService.seek(audioState.currentTime + 30);
   };
 
-  // Handle progress bar click/drag
+  // Get current position for progress bar (during drag or normal playback)
+  const getCurrentPosition = () => {
+    if (isDragging && dragPosition !== null) {
+      return dragPosition;
+    }
+    return audioState.duration ? (audioState.currentTime / audioState.duration) * 100 : 0;
+  };
+
+  // Calculate position from mouse/touch event
+  const getPositionFromEvent = (clientX: number, element: HTMLElement) => {
+    const rect = element.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+    return percentage;
+  };
+
+  // Handle progress bar click
   const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!audioState.duration) return;
+    if (!audioState.duration || isDragging) return;
     
-    const rect = event.currentTarget.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const percentage = clickX / rect.width;
-    const newTime = percentage * audioState.duration;
-    
+    const percentage = getPositionFromEvent(event.clientX, event.currentTarget);
+    const newTime = (percentage / 100) * audioState.duration;
     audioService.seek(newTime);
   };
 
+  // Handle drag start
+  const handleDragStart = (event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+    if (!audioState.duration) return;
+    
+    event.preventDefault();
+    setIsDragging(true);
+    
+    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+    const percentage = getPositionFromEvent(clientX, event.currentTarget);
+    setDragPosition(percentage);
+    
+    // Pause during drag for better UX
+    if (audioState.status === 'playing') {
+      audioService.pause();
+    }
+  };
+
+  // Handle drag move
+  const handleDragMove = (event: MouseEvent | TouchEvent) => {
+    if (!isDragging || !audioState.duration) return;
+    
+    const progressBar = document.querySelector('[data-progress-bar]') as HTMLElement;
+    if (!progressBar) return;
+    
+    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+    const percentage = getPositionFromEvent(clientX, progressBar);
+    setDragPosition(percentage);
+  };
+
+  // Handle drag end
+  const handleDragEnd = () => {
+    if (!isDragging || !audioState.duration || dragPosition === null) return;
+    
+    const newTime = (dragPosition / 100) * audioState.duration;
+    audioService.seek(newTime);
+    
+    setIsDragging(false);
+    setDragPosition(null);
+  };
+
+  // Add global event listeners for drag
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => handleDragMove(e);
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault(); // Prevent scrolling during drag
+      handleDragMove(e);
+    };
+    const handleMouseUp = () => handleDragEnd();
+    const handleTouchEnd = () => handleDragEnd();
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isDragging, dragPosition, audioState.duration]);
+
   // Calculate progress percentage
-  const progressPercentage = audioState.duration 
-    ? (audioState.currentTime / audioState.duration) * 100 
-    : 0;
+  const progressPercentage = getCurrentPosition();
 
   // Initialize audio and cleanup on unmount
   useEffect(() => {
@@ -204,12 +282,18 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToConversation }) => 
           {/* 2. Progress Bar + Timestamps */}
           <div className="w-full" style={{ marginBottom: '18px' }}>
             <div 
-              className="relative w-full bg-track bg-opacity-60 rounded-full mb-2 cursor-pointer" 
+              data-progress-bar
+              className={`relative w-full bg-track bg-opacity-60 rounded-full mb-2 cursor-pointer select-none ${
+                isDragging ? 'cursor-grabbing' : 'cursor-pointer'
+              }`}
               style={{ height: '4px' }}
               role="slider"
               aria-valuemin={0}
               aria-valuemax={Math.floor(audioState.duration || 0)}
-              aria-valuenow={Math.floor(audioState.currentTime || 0)}
+              aria-valuenow={isDragging && dragPosition !== null 
+                ? Math.floor((dragPosition / 100) * (audioState.duration || 0)) 
+                : Math.floor(audioState.currentTime || 0)
+              }
               aria-label="Seek"
               tabIndex={0}
               onKeyDown={(e) => {
@@ -221,6 +305,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToConversation }) => 
                 if (e.key === 'End') audioService.seek(audioState.duration);
               }}
               onClick={handleProgressClick}
+              onMouseDown={handleDragStart}
+              onTouchStart={handleDragStart}
             >
               <div className="h-full bg-accent rounded-full" style={{ width: `${progressPercentage}%` }}></div>
               
@@ -260,16 +346,38 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToConversation }) => 
               
               {/* Progress Knob */}
               <div 
-                className="absolute top-1/2 transform -translate-y-1/2 bg-accent rounded-full"
-                style={{ left: `calc(${progressPercentage}% - 8px)`, width: '16px', height: '16px' }}
+                className={`absolute top-1/2 transform -translate-y-1/2 bg-accent rounded-full transition-all duration-75 ${
+                  isDragging ? 'scale-125 shadow-lg' : 'hover:scale-110'
+                }`}
+                style={{ 
+                  left: `calc(${progressPercentage}% - 8px)`, 
+                  width: '16px', 
+                  height: '16px',
+                  boxShadow: isDragging ? '0 0 0 3px rgba(243, 164, 107, 0.3)' : undefined
+                }}
               ></div>
             </div>
             
             {/* Timestamps */}
             <div className="flex justify-between items-center text-[#B9B9B9] text-[13px] font-normal" style={{ marginTop: '8px' }}>
-              <span>{formatTime(audioState.currentTime)}</span>
-              <span>{formatRemainingTime(audioState.currentTime, audioState.duration)}</span>
-              <span>-{formatTime(audioState.duration - audioState.currentTime)}</span>
+              <span className={isDragging ? 'text-accent' : ''}>
+                {formatTime(isDragging && dragPosition !== null 
+                  ? (dragPosition / 100) * (audioState.duration || 0)
+                  : audioState.currentTime
+                )}
+              </span>
+              <span>
+                {isDragging && dragPosition !== null
+                  ? formatRemainingTime((dragPosition / 100) * (audioState.duration || 0), audioState.duration)
+                  : formatRemainingTime(audioState.currentTime, audioState.duration)
+                }
+              </span>
+              <span>
+                -{formatTime(isDragging && dragPosition !== null
+                  ? audioState.duration - ((dragPosition / 100) * (audioState.duration || 0))
+                  : audioState.duration - audioState.currentTime
+                )}
+              </span>
             </div>
           </div>
 
